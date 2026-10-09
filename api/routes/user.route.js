@@ -1,0 +1,11 @@
+const { Router } = require("express")
+const { auth } = require('../middleware/auth')
+const { userRegister, userLogin, getMe } = require("../controllers/user.controller")
+
+const router = Router()
+
+router.post('/register', userRegister)
+router.post('/login', userLogin)
+router.get('/me', auth, getMe)
+
+module.exports = router

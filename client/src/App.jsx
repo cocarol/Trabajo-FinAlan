@@ -3,6 +3,13 @@ import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import './App.css'
+import { Route, Routes, Link } from 'react-router-dom'
+
+import Login from "./components/Login"
+import Register from "./components/Register"
+import Profile from "./components/Profile"
+import PrivateRoute from "./components/PrivateRoute"
+
 
 function App() {
   const [count, setCount] = useState(0)
