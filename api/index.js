@@ -4,6 +4,7 @@ const server = express()
 
 const { sequelize } = require('./config/db')
 const userRoutes = require('./routes/user.route')
+const turnoRoutes = require('./routes/turno.route')
 
 server.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173')
@@ -19,9 +20,10 @@ server.use((req, res, next) => {
 server.use(express.json())
 
 server.use('/users', userRoutes)
+server.use('/turnos', turnoRoutes)
 
 server.listen(3000, async () => {
     await sequelize.authenticate()
-    await sequelize.sync({ force: false })
+    await sequelize.sync({ alter: true })
     console.log("El Server esta ON");
 })
