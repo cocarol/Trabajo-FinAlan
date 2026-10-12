@@ -1,26 +1,27 @@
-const { Datatypes } = require('sequelize');
-const { sequelize } = require('../config/db.js');
+const { DataTypes } = require("sequelize")
+const { sequelize } = require("../config/db")
 
-
-const Bitacora = sequelize.define('Bitacora' ,{
-    cod_bitacora: {
-        type: Datatypes.INTEGER,
-        autoincrement: true,
+const Bitacora = sequelize.define("Bitacora", {
+    usuarioId: {
+        type: DataTypes.INTEGER,
         allowNull: false
     },
-    evento_registrado: {
-        type: Datatypes.STRING(50),
+    accion: {
+        type: DataTypes.STRING,
         allowNull: false
     },
-    fecha_registrada: {
-        type: Datatypes.DATE,
-        allowNull: false
+    detalle: {
+        type: DataTypes.JSON,
+        allowNull: true
     },
-    hora_registrada: {
-        type: Datatypes.TIME,
-        allowNull: false
+    fecha: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW
     }
+}, {
+    tableName: "bitacora",
+    timestamps: false
 })
 
-
-module.exports = {Bitacora};
+module.exports = Bitacora

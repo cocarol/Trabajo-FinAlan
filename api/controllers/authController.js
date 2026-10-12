@@ -8,7 +8,7 @@ const registrar = async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        if (!username || !password) {
+        if (username === null || password === null) {
             return res.status(400).json({ message: "Faltan datos" });
         }
 

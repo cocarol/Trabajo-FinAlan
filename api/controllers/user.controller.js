@@ -67,7 +67,7 @@ const getMe = async (req, res) => {
             attributes: { exclude: ['password'] }
         })
 
-        if (!user) {
+        if (user === null) {
             return res.status(404).json({ message: "Usuario no encontrado" })
         }
 
