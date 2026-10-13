@@ -1,17 +1,12 @@
-import { useState } from "react"
-import axios from 'axios'
-import { useNavigate } from "react-router-dom"
+import { useState } from 'react'
 
 function Login() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [errorMessage, setErrorMessage] = useState("")
-    const navigate = useNavigate()
-
-    const submitLogin = async () => {
-        setErrorMessage("")
-        try {
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
             const response = await axios.post('http://localhost:3000/users/login', {
                 email: email,
                 password: password
@@ -23,17 +18,29 @@ function Login() {
         }
     }
 
-    return (<>
-        <h1>Login</h1>
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        placeholder="Correo electrónico"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
 
-        {errorMessage && (
-            <p style={{ color: 'red' }}>{errorMessage}</p>
-        )}
+      <input
+        type="password"
+        placeholder="Contraseña"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
 
-        <input type="text" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button onClick={submitLogin}>Ingresar</button>
-    </>)
+      <button type="submit">
+        Iniciar sesión
+      </button>
+    </form>
+  )
 }
 
 export default Login
