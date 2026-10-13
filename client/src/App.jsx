@@ -1,36 +1,84 @@
-import { Route, Routes, Link } from 'react-router-dom'
 
-import Login from "./components/Login"
-import Register from "./components/Register"
-import Profile from "./components/Profile"
-import PrivateRoute from "./components/PrivateRoute"
+import { Link, Navigate, Route, Routes } from 'react-router-dom'
+import Login from './components/Login'
+import Register from './components/Register'
+import Profile from './components/Profile'
+import PrivateRoute from './components/PrivateRoute'
+import './App.css'
+
+function Layout({ children }) {
+  return (
+    <main className="auth-screen">
+      <section className="auth-card">
+        <h1 className="app-title">Mi Aplicación</h1>
+        {children}
+      </section>
+    </main>
+  )
+}
+
+function LoginPage() {
+  return (
+    <Layout>
+      <h2>Iniciar sesión</h2>
+      <Login />
+      <p className="auth-switch">
+        ¿No tenés cuenta? <Link to="/register">Registrarme</Link>
+      </p>
+    </Layout>
+  )
+}
+
+function RegisterPage() {
+  return (
+    <Layout>
+      <h2>Registrarme</h2>
+      <Register />
+      <p className="auth-switch">
+        ¿Ya tenés cuenta? <Link to="/login">Iniciar sesión</Link>
+      </p>
+    </Layout>
+  )
+}
+
+function ProfilePage() {
+  return (
+    <Layout>
+      <h2>Mi perfil</h2>
+      <Profile />
+      <p className="auth-switch">
+        <Link to="/login">Volver al login</Link>
+      </p>
+    </Layout>
+  )
+}
 
 function App() {
-
   return (
-    <>
-      <h1>Mi Aplicación</h1>
-      <div>
-        <Link to="/login">Login</Link>
-        <p></p>
-        <Link to="/register">Registrarme</Link>
-        <p></p>
-        <Link to="/profile">Perfil</Link>
-      </div>
+    <Routes>
+      <Route
+        path="/"
+        element={<Navigate to="/login" replace />}
+      />
 
-      <Routes>
-        <Route element={<Login />} path='/login' />
-        <Route element={<Register />} path='/register' />
-        <Route
-          element={
-            <PrivateRoute>
-              <Profile />
-            </PrivateRoute>
-          }
-          path='/profile'
-        />
-      </Routes>
-    </>
+      <Route path="/login" element={<LoginPage />} />
+
+      <Route path="/register" element={<RegisterPage />} />
+
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <ProfilePage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="*"
+        element={<Navigate to="/login" replace />}
+      />
+    </Routes>
   )
 }
 
