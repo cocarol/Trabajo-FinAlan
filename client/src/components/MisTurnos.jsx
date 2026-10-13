@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import axios from 'axios'
+import Layout from "./Layout"
 
 function MisTurnos() {
 
@@ -8,7 +9,6 @@ function MisTurnos() {
     const token = localStorage.getItem('token')
 
     const fetchTurnos = async () => {
-        // Supone un endpoint GET /turnos/mis-turnos (CU11) ya existente
         const response = await axios.get('http://localhost:3000/turnos/mis-turnos', {
             headers: { Authorization: `Bearer ${token}` }
         })
@@ -32,20 +32,27 @@ function MisTurnos() {
     }, [])
 
     return (
-        <div>
-            <h2>Mis turnos</h2>
-            {mensaje && <p>{mensaje}</p>}
-            <ul>
-                {turnos.map(turno => (
-                    <li key={turno.id}>
-                        {turno.fecha} - {turno.horario} - Estado: {turno.estado}
+        <Layout>
+            <h1>Mis turnos</h1>
+            {mensaje && <div className="mensaje-info">{mensaje}</div>}
+
+            {turnos.length === 0 && <p style={{ color: 'var(--tinta-suave)' }}>Todavía no tenés turnos reservados.</p>}
+
+            {turnos.map(turno => (
+                <div key={turno.id} className={`turno-card estado-${turno.estado.toLowerCase()}`}>
+                    <div className="turno-info">
+                        <div className="especialidad">{turno.especialidad}</div>
+                        <div className="detalle">{turno.fecha} · {turno.horario} · {turno.ubicacion}</div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span className={`badge-estado ${turno.estado.toLowerCase()}`}>{turno.estado}</span>
                         {(turno.estado === "Reservado" || turno.estado === "Pagado") && (
-                            <button onClick={() => cancelarTurno(turno.id)}>Cancelar</button>
+                            <button className="btn-peligro" onClick={() => cancelarTurno(turno.id)}>Cancelar</button>
                         )}
-                    </li>
-                ))}
-            </ul>
-        </div>
+                    </div>
+                </div>
+            ))}
+        </Layout>
     )
 }
 
