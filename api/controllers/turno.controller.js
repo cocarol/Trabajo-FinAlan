@@ -46,9 +46,6 @@ const cancelarTurno = async (req, res) => {
     }
 }
 
-module.exports = {
-    cancelarTurno
-}
 const buscarTurnosDisponibles = async (req, res) => {
     try {
         const { especialidad, fecha } = req.query
@@ -103,11 +100,6 @@ const reservarTurno = async (req, res) => {
     }
 }
 
-module.exports = {
-    cancelarTurno,
-    buscarTurnosDisponibles,
-    reservarTurno
-}
 const pagarConsulta = async (req, res) => {
     try {
         const { turnoId, metodoPago } = req.body
@@ -160,6 +152,21 @@ const pagarConsulta = async (req, res) => {
     }
 }
 
+const misTurnos = async (req, res) => {
+    try {
+        const userId = req.user.id
+
+        const turnos = await Turno.findAll({
+            where: { pacienteId: userId },
+            order: [['fecha', 'ASC']]
+        })
+
+        res.status(200).json(turnos)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+}
+
 // Simula el Actor Secundario "Métodos de Pago (Pasarela externa)"
 const simularPasarelaDePago = async (metodoPago) => {
     return {
@@ -173,5 +180,6 @@ module.exports = {
     cancelarTurno,
     buscarTurnosDisponibles,
     reservarTurno,
-    pagarConsulta
+    pagarConsulta,
+    misTurnos
 }
