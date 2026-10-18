@@ -175,11 +175,34 @@ const simularPasarelaDePago = async (metodoPago) => {
         token: "TOKEN-" + Date.now()
     }
 }
+const crearTurno = async (req, res) => {
+    try {
+        const { especialidad, fecha, horario, ubicacion } = req.body
+
+        if (!especialidad || !fecha || !horario) {
+            return res.status(400).json({ message: "Especialidad, fecha y horario son obligatorios" })
+        }
+
+        const turno = await Turno.create({
+            especialidad,
+            fecha,
+            horario,
+            ubicacion,
+            estado: "Disponible",
+            pacienteId: 0
+        })
+
+        res.status(201).json(turno)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+}
 
 module.exports = {
     cancelarTurno,
     buscarTurnosDisponibles,
     reservarTurno,
     pagarConsulta,
-    misTurnos
+    misTurnos,
+    crearTurno
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import axios from 'axios'
 import { useNavigate } from "react-router-dom"
+import Layout from "./Layout"
 
 function Profile() {
 
@@ -10,7 +11,6 @@ function Profile() {
 
     const fetchMe = async () => {
         const token = localStorage.getItem('token')
-
         try {
             const response = await axios.get('http://localhost:3000/users/me', {
                 headers: { Authorization: `Bearer ${token}` }
@@ -24,11 +24,6 @@ function Profile() {
         }
     }
 
-    const handleLogout = () => {
-        localStorage.removeItem('token')
-        navigate('/login')
-    }
-
     useEffect(() => {
         fetchMe()
     }, [])
@@ -36,16 +31,15 @@ function Profile() {
     if (loading) return <p>Cargando...</p>
 
     return (
-        <div>
+        <Layout>
             <h1>Mi perfil</h1>
             {user && (
-                <>
-                    <p>Nombre: {user.name}</p>
-                    <p>Email: {user.email}</p>
-                </>
+                <div className="form-card" style={{ maxWidth: '420px' }}>
+                    <p><strong>Nombre:</strong> {user.name}</p>
+                    <p><strong>Email:</strong> {user.email}</p>
+                </div>
             )}
-            <button onClick={handleLogout}>Cerrar sesión</button>
-        </div>
+        </Layout>
     )
 }
 

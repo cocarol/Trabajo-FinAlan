@@ -13,25 +13,20 @@ function Layout({ children }) {
 
     return (
         <div className="app-layout">
-            <aside className="sidebar">
-                <div className="sidebar-brand">
-                    <span className="dot"></span>
+            <header className="topbar">
+                <Link to="/mis-turnos" className="topbar-brand">
+                    <span className="cruz"></span>
                     Turnos Salud
-                </div>
+                </Link>
 
-                <Link className={`sidebar-link ${isActive('/profile') ? 'active' : ''}`} to="/profile">Mi perfil</Link>
-                <Link className={`sidebar-link ${isActive('/mis-turnos') ? 'active' : ''}`} to="/mis-turnos">Mis turnos</Link>
-                <Link className={`sidebar-link ${isActive('/reservar') ? 'active' : ''}`} to="/reservar">Reservar turno</Link>
-
-                <div className="sidebar-footer">
-                    <button
-                        onClick={handleLogout}
-                        style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, font: 'inherit' }}
-                    >
-                        Cerrar sesión
-                    </button>
-                </div>
-            </aside>
+                <nav className="topbar-nav">
+                    <Link className={`topbar-link ${isActive('/mis-turnos') ? 'active' : ''}`} to="/mis-turnos">Mis turnos</Link>
+                    <Link className={`topbar-link ${isActive('/reservar') ? 'active' : ''}`} to="/reservar">Reservar turno</Link>
+                    <Link className={`topbar-link ${isActive('/crear-turno') ? 'active' : ''}`} to="/crear-turno">Cargar turno</Link>
+                    <Link className={`topbar-link ${isActive('/profile') ? 'active' : ''}`} to="/profile">Mi perfil</Link>
+                    <button className="topbar-logout" onClick={handleLogout}>Cerrar sesión</button>
+                </nav>
+            </header>
 
             <main className="main-content">
                 {children}

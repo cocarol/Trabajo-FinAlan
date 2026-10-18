@@ -1,6 +1,6 @@
 import { useState } from "react"
 import axios from 'axios'
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 
 function Login() {
 
@@ -17,7 +17,7 @@ function Login() {
                 password: password
             })
             localStorage.setItem('token', response.data.token)
-            navigate('/profile')
+            navigate('/mis-turnos')
         } catch (error) {
             setErrorMessage(error.response?.data?.message || "Usuario o contraseña incorrectos")
         }
@@ -44,6 +44,10 @@ function Login() {
                 <button className="btn-primario" onClick={submitLogin} style={{ width: '100%' }}>
                     Ingresar
                 </button>
+
+                <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.9rem' }}>
+                    ¿No tenés cuenta? <Link to="/register" style={{ color: 'var(--verde-clinico)', fontWeight: 600 }}>Registrarme</Link>
+                </p>
             </div>
         </div>
     )
