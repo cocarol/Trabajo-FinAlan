@@ -19,21 +19,34 @@ function Login() {
             localStorage.setItem('token', response.data.token)
             navigate('/profile')
         } catch (error) {
-            setErrorMessage(error.response?.data?.message || "Error al iniciar sesión")
+            setErrorMessage(error.response?.data?.message || "Usuario o contraseña incorrectos")
         }
     }
 
-    return (<>
-        <h1>Login</h1>
+    return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+            <div className="form-card">
+                <h1>Bienvenido de nuevo</h1>
+                <p style={{ color: 'var(--tinta-suave)', marginBottom: '24px' }}>Ingresá para gestionar tus turnos</p>
 
-        {errorMessage && (
-            <p style={{ color: 'red' }}>{errorMessage}</p>
-        )}
+                {errorMessage && <div className="mensaje-error">{errorMessage}</div>}
 
-        <input type="text" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button onClick={submitLogin}>Ingresar</button>
-    </>)
+                <div className="form-field">
+                    <label>Email</label>
+                    <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
+                </div>
+
+                <div className="form-field">
+                    <label>Contraseña</label>
+                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                </div>
+
+                <button className="btn-primario" onClick={submitLogin} style={{ width: '100%' }}>
+                    Ingresar
+                </button>
+            </div>
+        </div>
+    )
 }
 
 export default Login
