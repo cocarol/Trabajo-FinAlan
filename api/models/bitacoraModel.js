@@ -24,4 +24,4 @@ const Bitacora = sequelize.define("Bitacora", {
     timestamps: false
 })
 
-module.exports = Bitacora
+module.exports = {Bitacora};
