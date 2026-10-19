@@ -50,7 +50,7 @@ const userLogin = async (req, res) => {
         }
 
         const token = await jwt.sign(
-            { id: searchedUser.id, email: searchedUser.email },
+            { id: searchedUser.id, email: searchedUser.email, role: searchedUser.role },
             'misecreto',
             { expiresIn: '1h' }
         )

@@ -7,6 +7,11 @@ import PrivateRoute from "./components/PrivateRoute"
 import MisTurnos from "./components/MisTurnos"
 import BuscarYReservarTurno from "./components/BuscarYReservarTurno"
 import CrearTurno from "./components/CrearTurno"
+import RutaMedico from "./components/RutaMedico"
+import PanelMedico from "./components/PanelMedico"
+import FichaClinica from "./components/FichaClinica"
+import VincularPaciente from "./components/VincularPaciente"
+
 
 function App() {
   return (
@@ -18,6 +23,9 @@ function App() {
       <Route element={<PrivateRoute><MisTurnos /></PrivateRoute>} path='/mis-turnos' />
       <Route element={<PrivateRoute><BuscarYReservarTurno /></PrivateRoute>} path='/reservar' />
       <Route element={<PrivateRoute><CrearTurno /></PrivateRoute>} path='/crear-turno' />
+      <Route element={<RutaMedico><PanelMedico /></RutaMedico>} path='/medico/panel' />
+      <Route element={<RutaMedico><FichaClinica /></RutaMedico>} path='/medico/ficha/:pacienteId' />
+      <Route element={<RutaMedico><VincularPaciente /></RutaMedico>} path='/medico/vincular' />
     </Routes>
   )
 }

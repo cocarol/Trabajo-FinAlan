@@ -5,6 +5,7 @@ const server = express()
 const { sequelize } = require('./config/db')
 const userRoutes = require('./routes/user.route')
 const turnoRoutes = require('./routes/turno.route')
+const medicoRoutes = require('./routes/medico.route')
 
 server.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173')
@@ -18,7 +19,7 @@ server.use((req, res, next) => {
 })
 
 server.use(express.json())
-
+server.use('/medico', medicoRoutes)
 server.use('/users', userRoutes)
 server.use('/turnos', turnoRoutes)
 

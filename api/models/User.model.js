@@ -17,6 +17,16 @@ const User = sequelize.define("User", {
     password: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    role: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: "paciente" // paciente | medico | admin
+    },
+    dni: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true
     }
 }, {
     tableName: "users",

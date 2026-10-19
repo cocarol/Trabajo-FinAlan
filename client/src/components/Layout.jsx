@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom"
+import { jwtDecode } from "jwt-decode"
 
 function Layout({ children }) {
     const location = useLocation()
@@ -10,6 +11,11 @@ function Layout({ children }) {
         localStorage.removeItem('token')
         navigate('/login')
     }
+    const token = localStorage.getItem('token')
+    let esMedico = false
+    try {
+        esMedico = jwtDecode(token)?.role === 'medico'
+    } catch {}
 
     return (
         <div className="app-layout">
@@ -25,6 +31,12 @@ function Layout({ children }) {
                     <Link className={`topbar-link ${isActive('/crear-turno') ? 'active' : ''}`} to="/crear-turno">Cargar turno</Link>
                     <Link className={`topbar-link ${isActive('/profile') ? 'active' : ''}`} to="/profile">Mi perfil</Link>
                     <button className="topbar-logout" onClick={handleLogout}>Cerrar sesión</button>
+                    {esMedico && (
+                    <>
+                    <Link className={`topbar-link ${isActive('/medico/panel') ? 'active' : ''}`} to="/medico/panel">Panel médico</Link>
+                    <Link className={`topbar-link ${isActive('/medico/vincular') ? 'active' : ''}`} to="/medico/vincular">Agregar paciente</Link>
+                    </>
+                    )}
                 </nav>
             </header>
 
