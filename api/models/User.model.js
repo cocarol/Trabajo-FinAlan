@@ -23,4 +23,4 @@ const User = sequelize.define("User", {
     timestamps: false
 })
 
-module.exports = User
+module.exports = {User}

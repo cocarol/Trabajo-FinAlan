@@ -1,4 +1,4 @@
-const Admin = require('./adminModel.js')
+const Administrador = require('./adminModel.js')
 const Consultorio = require('./consultorioModel.js')
 const Disponibilidad = require('./disponibilidadModel.js')
 const Especialidad = require('./diagnosticoModel.js')
@@ -17,4 +17,24 @@ const User = require('./User.model.js')
 const Turno = require('./turnoModel.js')
 const Bitacora = require('./bitacoraModel.js')
 
-module.exports = { User, Turno, Bitacora, Admin, Consultorio, Disponibilidad, Especialidad, Factura, HistorialClinico, Medico, MetodoPago, Notificacion, ObraSocial, Pago, RecetaMedica, Reserva, SalaEspera, Ubicacion}
+Ubicacion.hasOne(SalaEspera);
+SalaEspera.belongsTo(Ubicacion);
+
+Consultorio.hasOne(Ubicacion);
+Ubicacion.belongsTo(Consultorio)
+
+Usuario.hasOne(SalaEspera);
+SalaEspera.belongsTo(Usuario);
+
+Medico.hasOne(Administrador);
+Administrador.belongsTo(Medico);
+
+Bitacora.hasOne(Administrador);
+Administrador.belongsTo(Bitacora);
+
+Usuario.hasOne(Administrador);
+Administrador.belongsTo(Usuario);
+
+
+
+module.exports = { User, Turno, Bitacora, Administrador, Consultorio, Disponibilidad, Especialidad, Factura, HistorialClinico, Medico, MetodoPago, Notificacion, ObraSocial, Pago, RecetaMedica, Reserva, SalaEspera, Ubicacion}
