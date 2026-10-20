@@ -1,4 +1,4 @@
-const { Datatypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db')
 
 const Esp = sequelize.define('Especialidad' ,{
@@ -8,11 +8,11 @@ const Esp = sequelize.define('Especialidad' ,{
         primaryKey: true,
     },
     nombre_especialidad: {
-        type: Datatypes.STRING(30),
+        type: DataTypes.STRING(30),
         allowNull: false,
     },
     descripcion_especialidad: {
-        type: Datatypes.STRING(100),
+        type: DataTypes.STRING(100),
         allowNull: false
     }
 })

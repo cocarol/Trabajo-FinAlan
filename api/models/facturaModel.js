@@ -1,23 +1,23 @@
-const { Datatypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db.js');
 
 
 const Factura = sequelize.define('Factura' ,{
     id_factura: {
-        type: Datatypes.INTEGER,
+        type: DataTypes.INTEGER,
         autoincrement: true,
         allowNull: false
     },
     numero_factura: {
-        type: Datatypes.INTEGER,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     fechaemision_factura: {
-        type: Datatypes.DATE,
+        type: DataTypes.DATE,
         allowNull: false
     },
     total_factura: {
-        type: Datatypes.DOUBLE,
+        type: DataTypes.DOUBLE,
         allowNull: false
     }
 })

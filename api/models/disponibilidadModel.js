@@ -1,23 +1,23 @@
-const { Datatypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db.js');
 
 
 const Disponibilidad = sequelize.define('Disponibilidad' ,{
     id_disponibilidad: {
-        type: Datatypes.INTEGER,
+        type: DataTypes.INTEGER,
         autoincrement: true,
         allowNull: false
     },
     horainicio_disponibilidad: {
-        type: Datatypes.TIME,
+        type: DataTypes.TIME,
         allowNull: false
     },
     horafin_disponibilidad: {
-        type: Datatypes.TIME,
+        type: DataTypes.TIME,
         allowNull: false
     },
     fecha_disponibilidad: {
-        type: Datatypes.DATE,
+        type: DataTypes.DATE,
         allowNull: false
     }
 })

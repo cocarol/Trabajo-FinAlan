@@ -1,19 +1,19 @@
-const { Datatypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db.js');
 
 
 const Diagnostico = sequelize.define('Diagnostico' ,{
     id_diagnostico: {
-        type: Datatypes.INTEGER,
+        type: DataTypes.INTEGER,
         autoincrement: true,
         allowNull: false
     },
     descripcion_diagnostico: {
-        type: Datatypes.STRING(100),
+        type: DataTypes.STRING(100),
         allowNull: false
     },
     fecha_diagnostico: {
-        type: Datatypes.DATE,
+        type: DataTypes.DATE,
         allowNull: false
     }
 })

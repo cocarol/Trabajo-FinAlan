@@ -1,23 +1,23 @@
-const { Datatypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db.js');
 
 
 const RecetaMedica = sequelize.define('RecetaMedica' ,{
     id_receta: {
-        type: Datatypes.INTEGER,
+        type: DataTypes.INTEGER,
         autoincrement: true,
         allowNull: false
     },
     medicamentos_receta: {
-        type: Datatypes.STRING(100),
+        type: DataTypes.STRING(100),
         allowNull: false
     },
     indicaciones_receta: {
-        type: Datatypes.STRING(150),
+        type: DataTypes.STRING(150),
         allowNull: false
     },
     fecha_receta: {
-        type: Datatypes.DATE,
+        type: DataTypes.DATE,
         allowNull: false
     }
 })

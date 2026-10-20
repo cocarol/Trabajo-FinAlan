@@ -1,27 +1,27 @@
-const { Datatypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db.js');
 
 
 const Notificacion = sequelize.define('Notificacion' ,{
     id_notificacion: {
-        type: Datatypes.INTEGER,
+        type: DataTypes.INTEGER,
         autoincrement: true,
         allowNull: false
     },
     fecha_notificacion: {
-        type: Datatypes.DATE,
+        type: DataTypes.DATE,
         allowNull: false
     },
     tipo_notificacion: {
-        type: Datatypes.STRING(20),
+        type: DataTypes.STRING(20),
         allowNull: false
     },
     estado_notificacion: {
-        type: Datatypes.STRING(12),
+        type: DataTypes.STRING(12),
         allowNull: false
     },
     mensaje_notificacion: {
-        type: Datatypes.STRING(100),
+        type: DataTypes.STRING(100),
         allowNull: false
     }
 })

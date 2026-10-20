@@ -1,27 +1,27 @@
-const { Datatypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db.js');
 
 
 const HistorialClinico = sequelize.define('HistorialClinico' ,{
     id_historial: {
-        type: Datatypes.INTEGER,
+        type: DataTypes.INTEGER,
         autoincrement: true,
         allowNull: false
     },
     fecha_historialclinico: {
-        type: Datatypes.DATE,
+        type: DataTypes.DATE,
         allowNull: false
     },
     peso_historialclinico: {
-        type: Datatypes.DOUBLE,
+        type: DataTypes.DOUBLE,
         allowNull: false
     },
     altura_historialclinico: {
-        type: Datatypes.DOUBLE,
+        type: DataTypes.DOUBLE,
         allowNull: false
     },
     observacion_historialclinico: {
-        type: Datatypes.STRING(100),
+        type: DataTypes.STRING(100),
         allowNull: false
     }
 })

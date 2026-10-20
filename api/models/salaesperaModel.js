@@ -1,19 +1,19 @@
-const { Datatypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db.js');
 
 
 const SalaEspera = sequelize.define('SalaEspera' ,{
     id_sala: {
-        type: Datatypes.INTEGER,
+        type: DataTypes.INTEGER,
         autoincrement: true,
         allowNull: false
     },
     nombre_sala: {
-        type: Datatypes.STRING(100),
+        type: DataTypes.STRING(100),
         allowNull: false
     },
     capacidad_sala: {
-        type: Datatypes.DATE,
+        type: DataTypes.DATE,
         allowNull: false
     }
 })

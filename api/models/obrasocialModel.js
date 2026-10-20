@@ -1,4 +1,4 @@
-const { Datatypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db')
 
 const ObraSocial = sequelize.define('Obra_Social' ,{
@@ -8,15 +8,15 @@ const ObraSocial = sequelize.define('Obra_Social' ,{
         primaryKey: true,
     },
     nombre_obrasocial: {
-        type: Datatypes.STRING(30),
+        type: DataTypes.STRING(30),
         allowNull: false,
     },
     telefono_obrasocial: {
-        type: Datatypes.INTEGER,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     plan_obrasocial: {
-        type: Datatypes.STRING(20),
+        type: DataTypes.STRING(20),
         defaultValue: false
     }
 })

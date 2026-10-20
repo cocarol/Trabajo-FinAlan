@@ -1,27 +1,27 @@
-const { Datatypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db.js');
 
 
 const Pago = sequelize.define('Pago' ,{
     id_pago: {
-        type: Datatypes.INTEGER,
+        type: DataTypes.INTEGER,
         autoincrement: true,
         allowNull: false
     },
     fecha_pago: {
-        type: Datatypes.DATE,
+        type: DataTypes.DATE,
         allowNull: false
     },
     monto_pago: {
-        type: Datatypes.DOUBLE,
+        type: DataTypes.DOUBLE,
         allowNull: false
     },
     metodo_pago: {
-        type: Datatypes.INTEGER,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     estado_pago: {
-        type: Datatypes.STRING(12),
+        type: DataTypes.STRING(12),
         allowNull: false
     }
 })

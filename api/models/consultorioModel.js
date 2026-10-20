@@ -1,26 +1,25 @@
-const { Datatypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db.js');
 
-
-const Consultorio = sequelize.define('Consultorio' ,{
+const Consultorio = sequelize.define('Consultorio', {
     id_consultorio: {
-        type: Datatypes.INTEGER,
-        autoincrement: true,
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
         allowNull: false
     },
     numero_consultorio: {
-        type: Datatypes.INTEGER,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     piso_consultorio: {
-        type: Datatypes.INTEGER,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     estado_consultorio: {
-        type: Datatypes.BOOLEAN,
+        type: DataTypes.BOOLEAN,
         allowNull: false
     }
 })
 
-
-module.exports = {Consultorio};
+module.exports = { Consultorio };
