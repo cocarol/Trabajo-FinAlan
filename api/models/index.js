@@ -12,28 +12,29 @@ const Pago = require('./pagoModel.js')
 const RecetaMedica = require('./recetamedicaModel.js')
 const Reserva = require('./reservaModel.js')
 const SalaEspera = require('./salaesperaModel.js')
-const Ubicacion = require('./ubicacionModel.js')
 const User = require('./User.model.js')
 const Turno = require('./turnoModel.js')
 const Bitacora = require('./bitacoraModel.js')
+const Ubicacion = require('./ubicacionModel.js')
+
 
 Ubicacion.hasOne(SalaEspera);
 SalaEspera.belongsTo(Ubicacion);
 
-Consultorio.hasOne(Ubicacion);
-Ubicacion.belongsTo(Consultorio)
+Consultorio.hasOne(Ubicacion, { foreignKey: 'id_consultorio' });
+Ubicacion.belongsTo(Consultorio, { foreignKey: 'id_consultorio' });
 
-Usuario.hasOne(SalaEspera);
-SalaEspera.belongsTo(Usuario);
+User.hasOne(SalaEspera);
+SalaEspera.belongsTo(User);
 
-Medico.hasOne(Administrador);
-Administrador.belongsTo(Medico);
+Medico.hasOne(Administrador, { foreignKey: 'id_medico' });
+Administrador.belongsTo(Medico, { foreignKey: 'id_medico' });
 
-Bitacora.hasOne(Administrador);
-Administrador.belongsTo(Bitacora);
+Bitacora.hasOne(Administrador, { foreignKey: 'cod_bitacora' });
+Administrador.belongsTo(Bitacora, { foreignKey: 'cod_bitacora' });
 
-Usuario.hasOne(Administrador);
-Administrador.belongsTo(Usuario);
+User.hasOne(Administrador, { foreignKey: 'id_usuario' });
+Administrador.belongsTo(User, { foreignKey: 'id_usuario' });
 
 
 

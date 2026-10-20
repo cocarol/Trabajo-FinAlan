@@ -2,8 +2,10 @@ const { DataTypes } = require("sequelize")
 const { sequelize } = require("../config/db")
 
 const Bitacora = sequelize.define("Bitacora", {
-    usuarioId: {
+    cod_bitacora: {
         type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
         allowNull: false
     },
     accion: {
@@ -24,4 +26,4 @@ const Bitacora = sequelize.define("Bitacora", {
     timestamps: false
 })
 
-module.exports = {Bitacora};
+module.exports = Bitacora;

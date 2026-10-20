@@ -21,4 +21,4 @@ const ObraSocial = sequelize.define('Obra_Social' ,{
     }
 })
 
-module.exports = {ObraSocial}
+module.exports = ObraSocial

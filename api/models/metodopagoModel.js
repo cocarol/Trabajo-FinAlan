@@ -19,4 +19,4 @@ const MetodoPago = sequelize.define('MetodoPago' ,{
 })
 
 
-module.exports = {MetodoPago};
+module.exports = MetodoPago;

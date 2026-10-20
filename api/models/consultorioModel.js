@@ -22,4 +22,4 @@ const Consultorio = sequelize.define('Consultorio', {
     }
 })
 
-module.exports = { Consultorio };
+module.exports = Consultorio
