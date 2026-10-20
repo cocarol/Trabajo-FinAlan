@@ -19,4 +19,4 @@ const SalaEspera = sequelize.define('SalaEspera' ,{
 })
 
 
-module.exports = {SalaEspera};
+module.exports = SalaEspera
