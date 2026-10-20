@@ -2,6 +2,12 @@ const { DataTypes } = require("sequelize")
 const { sequelize } = require("../config/db")
 
 const User = sequelize.define("User", {
+    id_usuario: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true
+    },
     name: {
         type: DataTypes.STRING,
         allowNull: false
@@ -19,9 +25,9 @@ const User = sequelize.define("User", {
         allowNull: false
     },
     role: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    defaultValue: "paciente" // paciente | medico | admin
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "paciente" // paciente | medico | admin
     },
     dni: {
         type: DataTypes.STRING,

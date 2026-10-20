@@ -36,6 +36,13 @@ Administrador.belongsTo(Bitacora, { foreignKey: 'cod_bitacora' });
 User.hasOne(Administrador, { foreignKey: 'id_usuario' });
 Administrador.belongsTo(User, { foreignKey: 'id_usuario' });
 
-
+Medico.belongsToMany(Especialidad, {
+    through: 'MedicoEspecialidad',
+    foreignKey: 'id_especialidad'
+});
+Especialidad.belongsToMany(Medico, {
+    through: 'MedicoEspecialidad',
+    foreignKey: 'id_medico'
+});
 
 module.exports = { User, Turno, Bitacora, Administrador, Consultorio, Disponibilidad, Especialidad, Factura, HistorialClinico, Medico, MetodoPago, Notificacion, ObraSocial, Pago, RecetaMedica, Reserva, SalaEspera, Ubicacion}

@@ -11,6 +11,8 @@ import RutaMedico from "./components/RutaMedico"
 import PanelMedico from "./components/PanelMedico"
 import FichaClinica from "./components/FichaClinica"
 import VincularPaciente from "./components/VincularPaciente"
+import RutaPaciente from "./components/RutaPaciente"
+import EditarPerfil from './components/EditarPerfil'
 
 
 function App() {
@@ -26,6 +28,8 @@ function App() {
       <Route element={<RutaMedico><PanelMedico /></RutaMedico>} path='/medico/panel' />
       <Route element={<RutaMedico><FichaClinica /></RutaMedico>} path='/medico/ficha/:pacienteId' />
       <Route element={<RutaMedico><VincularPaciente /></RutaMedico>} path='/medico/vincular' />
+      <Route element={<RutaPaciente><BuscarYReservarTurno /></RutaPaciente>} path='/reservar' />
+      <Route element={<EditarPerfil />} path="/perfil"/>
     </Routes>
   )
 }

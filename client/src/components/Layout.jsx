@@ -15,7 +15,7 @@ function Layout({ children }) {
     let esMedico = false
     try {
         esMedico = jwtDecode(token)?.role === 'medico'
-    } catch {}
+    } catch { }
 
     return (
         <div className="app-layout">
@@ -27,15 +27,22 @@ function Layout({ children }) {
 
                 <nav className="topbar-nav">
                     <Link className={`topbar-link ${isActive('/mis-turnos') ? 'active' : ''}`} to="/mis-turnos">Mis turnos</Link>
-                    <Link className={`topbar-link ${isActive('/reservar') ? 'active' : ''}`} to="/reservar">Reservar turno</Link>
+                    {!esMedico && (
+                        <Link className="topbar-link" to="/reservar">Reservar turno</Link>
+                    )}
                     <Link className={`topbar-link ${isActive('/crear-turno') ? 'active' : ''}`} to="/crear-turno">Cargar turno</Link>
                     <Link className={`topbar-link ${isActive('/profile') ? 'active' : ''}`} to="/profile">Mi perfil</Link>
+                    <div style={{ margin: '20px 0' }}>
+                        <Link to="/perfil">
+                            Editar mi perfil
+                        </Link>
+                    </div>
                     <button className="topbar-logout" onClick={handleLogout}>Cerrar sesión</button>
                     {esMedico && (
-                    <>
-                    <Link className={`topbar-link ${isActive('/medico/panel') ? 'active' : ''}`} to="/medico/panel">Panel médico</Link>
-                    <Link className={`topbar-link ${isActive('/medico/vincular') ? 'active' : ''}`} to="/medico/vincular">Agregar paciente</Link>
-                    </>
+                        <>
+                            <Link className={`topbar-link ${isActive('/medico/panel') ? 'active' : ''}`} to="/medico/panel">Panel médico</Link>
+                            <Link className={`topbar-link ${isActive('/medico/vincular') ? 'active' : ''}`} to="/medico/vincular">Agregar paciente</Link>
+                        </>
                     )}
                 </nav>
             </header>

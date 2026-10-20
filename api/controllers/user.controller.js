@@ -77,8 +77,44 @@ const getMe = async (req, res) => {
     }
 }
 
+const updateProfile = async (req, res) => {
+    const t = await sequelize.transaction();
+    try {
+        const userId = req.user.id_usuario;
+        const { name, email, dni, especialidad, matricula, obra_social, numero_afiliado, telefono } = req.body;
+
+        const user = await User.findByPk(userId, { transaction: t });
+        if (!user) {
+            await t.rollback();
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        await user.update({ name, email, dni }, { transaction: t });
+
+        if (user.role === 'medico') {
+            const medico = await Medico.findOne({ where: { id_usuario: userId }, transaction: t });
+            if (medico) {
+                await medico.update({ especialidad, matricula }, { transaction: t });
+            }
+        } else if (user.role === 'paciente') {
+            const paciente = await Paciente.findOne({ where: { id_usuario: userId }, transaction: t });
+            if (paciente) {
+                await paciente.update({ obra_social, numero_afiliado, telefono }, { transaction: t });
+            }
+        }
+
+        await t.commit();
+        res.json({ message: 'Perfil actualizado con éxito' });
+
+    } catch (error) {
+        await t.rollback();
+        res.status(500).json({ error: 'Error al actualizar: ' + error.message });
+    }
+};
+
 module.exports = {
     userRegister,
     userLogin,
-    getMe
+    getMe,
+    updateProfile
 }

@@ -16,8 +16,16 @@ function Login() {
                 email: email,
                 password: password
             })
+            
             localStorage.setItem('token', response.data.token)
-            navigate('/mis-turnos')
+            
+            const userRole = response.data.role 
+
+            if (userRole === 'medico') {
+                navigate('/medico/panel')
+            } else {
+                navigate('/mis-turnos')
+            }
         } catch (error) {
             setErrorMessage(error.response?.data?.message || "Usuario o contraseña incorrectos")
         }
