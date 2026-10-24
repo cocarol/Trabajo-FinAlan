@@ -7,12 +7,12 @@ const { encriptar, desencriptar } = require('../utils/encriptado')
 const listarPacientesDelDia = async (req, res) => {
     try {
         const medicoId = req.user.id
-        const hoy = new Date().toISOString().split('T')[0] // YYYY-MM-DD
+        const hoy = new Date().toISOString().split('T')[0]
 
         const turnosHoy = await Turno.findAll({
             where: {
                 fecha: hoy,
-                estado: "Pagado" // equivalente a "Confirmado" en este sistema
+                estado: "Pagado" 
             },
             order: [['horario', 'ASC']]
         })
@@ -46,7 +46,7 @@ const listarPacientesDelDia = async (req, res) => {
     }
 }
 
-// CU10 - Actualizar Información del Paciente (ficha clínica)
+// CU10 - Actualizar Información del Paciente
 const actualizarFichaClinica = async (req, res) => {
     try {
         const medicoId = req.user.id
@@ -79,8 +79,8 @@ const actualizarFichaClinica = async (req, res) => {
     }
 }
 
-// Para mostrar la ficha ya descifrada en el frontend
 const verFichaClinica = async (req, res) => {
+// Para mostrar la ficha ya descifrada en el frontend
     try {
         const { pacienteId } = req.params
 

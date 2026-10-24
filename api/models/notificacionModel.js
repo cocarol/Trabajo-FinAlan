@@ -27,4 +27,4 @@ const Notificacion = sequelize.define('Notificacion' ,{
 })
 
 
-module.exports = {Notificacion};
+module.exports = Notificacion;

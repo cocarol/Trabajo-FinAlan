@@ -23,4 +23,4 @@ const Factura = sequelize.define('Factura' ,{
 })
 
 
-module.exports = {Factura};
+module.exports = Factura;

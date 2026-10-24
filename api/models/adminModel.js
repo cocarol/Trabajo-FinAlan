@@ -25,4 +25,4 @@ const Administrador = sequelize.define('Administrador', {
     }
 })
 
-module.exports = { Administrador };
+module.exports = Administrador

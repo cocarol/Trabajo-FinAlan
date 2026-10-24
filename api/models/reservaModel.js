@@ -23,4 +23,4 @@ const Reserva = sequelize.define('Reserva' ,{
 })
 
 
-module.exports = {Reserva};
+module.exports = Reserva

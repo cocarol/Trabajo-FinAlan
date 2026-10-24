@@ -23,4 +23,4 @@ const RecetaMedica = sequelize.define('RecetaMedica' ,{
 })
 
 
-module.exports = {RecetaMedica};
+module.exports = RecetaMedica

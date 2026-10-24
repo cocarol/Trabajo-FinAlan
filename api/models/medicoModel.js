@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db')
 
 const Medico = sequelize.define('Medico' ,{
-    id_: {
+    id_medico: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
@@ -26,4 +26,4 @@ const Medico = sequelize.define('Medico' ,{
     }
 })
 
-module.exports = {Medico};
+module.exports = Medico;

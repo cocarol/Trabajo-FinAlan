@@ -45,4 +45,4 @@ const Turno = sequelize.define("Turno", {
     timestamps: false
 })
 
-module.exports = {Turno}
+module.exports = Turno

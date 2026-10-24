@@ -19,4 +19,4 @@ const Diagnostico = sequelize.define('Diagnostico' ,{
 })
 
 
-module.exports = {Diagnostico};
+module.exports = Diagnostico;

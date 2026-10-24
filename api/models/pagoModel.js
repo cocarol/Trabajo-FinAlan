@@ -27,4 +27,4 @@ const Pago = sequelize.define('Pago' ,{
 })
 
 
-module.exports = {Pago};
+module.exports = Pago

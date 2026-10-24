@@ -27,4 +27,4 @@ const HistorialClinico = sequelize.define('HistorialClinico' ,{
 })
 
 
-module.exports = {HistorialClinico};
+module.exports = HistorialClinico;

@@ -17,4 +17,4 @@ const Esp = sequelize.define('Especialidad' ,{
     }
 })
 
-module.exports = {Esp};
+module.exports = Esp;

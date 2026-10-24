@@ -23,4 +23,4 @@ const Disponibilidad = sequelize.define('Disponibilidad' ,{
 })
 
 
-module.exports = {Disponibilidad};
+module.exports = Disponibilidad;
