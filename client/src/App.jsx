@@ -13,6 +13,8 @@ import FichaClinica from "./components/FichaClinica"
 import VincularPaciente from "./components/VincularPaciente"
 import RutaPaciente from "./components/RutaPaciente"
 import EditarPerfil from './components/EditarPerfil'
+import RutaAdmin from "./components/RutaAdmin"
+import GestionRoles from "./components/GestionRoles"
 
 
 function App() {
@@ -30,6 +32,7 @@ function App() {
       <Route element={<RutaMedico><VincularPaciente /></RutaMedico>} path='/medico/vincular' />
       <Route element={<RutaPaciente><BuscarYReservarTurno /></RutaPaciente>} path='/reservar' />
       <Route element={<EditarPerfil />} path="/perfil"/>
+      <Route element={<RutaAdmin><GestionRoles /></RutaAdmin>} path='/admin/roles' />
     </Routes>
   )
 }

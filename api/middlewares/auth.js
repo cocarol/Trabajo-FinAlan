@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const { User } = require('../models/index')
 
 const auth = async (req, res, next) => {
     try {
@@ -19,14 +20,26 @@ const auth = async (req, res, next) => {
         res.status(403).json({ message: "Token inválido o expirado" })
     }
 }
-const isMedico = (req, res, next) => {
-    if (req.user.role !== 'medico') {
-        return res.status(403).json({ message: "Acceso restringido a profesionales de la salud" })
+const requireRole = (...rolesPermitidos) => async (req, res, next) => {
+    try {
+        const user = await User.findByPk(req.user.id, { attributes: ['id', 'role'] })
+
+        if (!user || !rolesPermitidos.includes(user.role)) {
+            return res.status(403).json({ message: "No cuenta con los permisos necesarios para esta acción" })
+        }
+
+        req.user.role = user.role
+        next()
+    } catch (error) {
+        res.status(500).json(error)
     }
-    next()
 }
+
+const isMedico = requireRole('medico')
+const isAdmin = requireRole('admin')
 
 module.exports = {
     auth,
-    isMedico
+    isMedico,
+    isAdmin
 }

@@ -33,6 +33,18 @@ const User = sequelize.define("User", {
         type: DataTypes.STRING,
         allowNull: true,
         unique: true
+    },
+    firmaRol: {
+    type: DataTypes.TEXT,
+    allowNull: true
+    },
+    dvh: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    dvv: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 }, {
     tableName: "users",

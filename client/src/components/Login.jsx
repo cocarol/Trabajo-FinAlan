@@ -1,6 +1,7 @@
 import { useState } from "react"
 import axios from 'axios'
 import { useNavigate, Link } from "react-router-dom"
+import { jwtDecode } from "jwt-decode" 
 
 function Login() {
 
@@ -16,16 +17,12 @@ function Login() {
                 email: email,
                 password: password
             })
-            
             localStorage.setItem('token', response.data.token)
-            
-            const userRole = response.data.role 
 
-            if (userRole === 'medico') {
-                navigate('/medico/panel')
-            } else {
-                navigate('/mis-turnos')
-            }
+            const decoded = jwtDecode(response.data.token)
+            const destinos = { medico: '/medico/panel', admin: '/admin/roles' }
+            navigate(destinos[decoded.role] || '/mis-turnos')
+
         } catch (error) {
             setErrorMessage(error.response?.data?.message || "Usuario o contraseña incorrectos")
         }

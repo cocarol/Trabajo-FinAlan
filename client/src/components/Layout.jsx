@@ -12,10 +12,10 @@ function Layout({ children }) {
         navigate('/login')
     }
     const token = localStorage.getItem('token')
-    let esMedico = false
-    try {
-        esMedico = jwtDecode(token)?.role === 'medico'
-    } catch { }
+    let rol = 'paciente'
+    try { rol = jwtDecode(token)?.role || 'paciente'
+    } catch {}
+
 
     return (
         <div className="app-layout">
@@ -44,6 +44,25 @@ function Layout({ children }) {
                             <Link className={`topbar-link ${isActive('/medico/vincular') ? 'active' : ''}`} to="/medico/vincular">Agregar paciente</Link>
                         </>
                     )}
+                    {rol === 'paciente' && (
+                        <>
+                            <Link className={`topbar-link ${isActive('/mis-turnos') ? 'active' : ''}`} to="/mis-turnos">Mis turnos</Link>
+                            <Link className={`topbar-link ${isActive('/reservar') ? 'active' : ''}`} to="/reservar">Reservar turno</Link>
+                        </>
+                    )}
+
+                    {rol === 'medico' && (
+                        <>
+                            <Link className={`topbar-link ${isActive('/medico/panel') ? 'active' : ''}`} to="/medico/panel">Panel médico</Link>
+                            <Link className={`topbar-link ${isActive('/medico/vincular') ? 'active' : ''}`} to="/medico/vincular">Agregar paciente</Link>
+                        </>
+                    )}
+
+                    {rol === 'admin' && (
+                        <Link className={`topbar-link ${isActive('/admin/roles') ? 'active' : ''}`} to="/admin/roles">Roles y usuarios</Link>
+                    )}
+
+                    <Link className={`topbar-link ${isActive('/profile') ? 'active' : ''}`} to="/profile">Mi perfil</Link>
                 </nav>
             </header>
 
@@ -53,5 +72,6 @@ function Layout({ children }) {
         </div>
     )
 }
+
 
 export default Layout

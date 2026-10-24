@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db.js');
-//pene
+
 
 const RecetaMedica = sequelize.define('RecetaMedica' ,{
     id_receta: {
