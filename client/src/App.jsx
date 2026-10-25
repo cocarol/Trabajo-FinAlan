@@ -28,7 +28,7 @@ function App() {
       <Route element={<PrivateRoute><BuscarYReservarTurno /></PrivateRoute>} path='/reservar' />
       <Route element={<PrivateRoute><CrearTurno /></PrivateRoute>} path='/crear-turno' />
       <Route element={<RutaMedico><PanelMedico /></RutaMedico>} path='/medico/panel' />
-      <Route element={<RutaMedico><FichaClinica /></RutaMedico>} path='/medico/ficha/:pacienteId' />
+      <Route element={<RutaMedico><FichaClinica /></RutaMedico>} path='/medico/ficha/:id_paciente' />
       <Route element={<RutaMedico><VincularPaciente /></RutaMedico>} path='/medico/vincular' />
       <Route element={<RutaPaciente><BuscarYReservarTurno /></RutaPaciente>} path='/reservar' />
       <Route element={<EditarPerfil />} path="/perfil"/>

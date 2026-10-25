@@ -45,4 +45,6 @@ Especialidad.belongsToMany(Medico, {
     foreignKey: 'id_medico'
 });
 
+
+
 module.exports = { User, Turno, Bitacora, Administrador, Consultorio, Disponibilidad, Especialidad, Factura, HistorialClinico, Medico, MetodoPago, Notificacion, ObraSocial, Pago, RecetaMedica, Reserva, SalaEspera, Ubicacion}

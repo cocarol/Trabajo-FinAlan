@@ -38,7 +38,7 @@ function PanelMedico() {
                         <div className="especialidad">{p.nombre}</div>
                         <div className="detalle">{p.horario} · {p.especialidad}</div>
                     </div>
-                    <Link to={`/medico/ficha/${p.pacienteId}`} className="btn-secundario" style={{ textDecoration: 'none' }}>
+                    <Link to={`/medico/ficha/${p.id_paciente}`} className="btn-secundario" style={{ textDecoration: 'none' }}>
                         Ver ficha
                     </Link>
                 </div>

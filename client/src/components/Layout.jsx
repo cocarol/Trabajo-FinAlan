@@ -16,6 +16,7 @@ function Layout({ children }) {
     try { rol = jwtDecode(token)?.role || 'paciente'
     } catch {}
 
+    const esMedico = rol === 'medico'
 
     return (
         <div className="app-layout">
@@ -26,28 +27,13 @@ function Layout({ children }) {
                 </Link>
 
                 <nav className="topbar-nav">
-                    <Link className={`topbar-link ${isActive('/mis-turnos') ? 'active' : ''}`} to="/mis-turnos">Mis turnos</Link>
                     {!esMedico && (
                         <Link className="topbar-link" to="/reservar">Reservar turno</Link>
                     )}
-                    <Link className={`topbar-link ${isActive('/crear-turno') ? 'active' : ''}`} to="/crear-turno">Cargar turno</Link>
-                    <Link className={`topbar-link ${isActive('/profile') ? 'active' : ''}`} to="/profile">Mi perfil</Link>
-                    <div style={{ margin: '20px 0' }}>
-                        <Link to="/perfil">
-                            Editar mi perfil
-                        </Link>
-                    </div>
-                    <button className="topbar-logout" onClick={handleLogout}>Cerrar sesión</button>
-                    {esMedico && (
-                        <>
-                            <Link className={`topbar-link ${isActive('/medico/panel') ? 'active' : ''}`} to="/medico/panel">Panel médico</Link>
-                            <Link className={`topbar-link ${isActive('/medico/vincular') ? 'active' : ''}`} to="/medico/vincular">Agregar paciente</Link>
-                        </>
-                    )}
+                    
                     {rol === 'paciente' && (
                         <>
                             <Link className={`topbar-link ${isActive('/mis-turnos') ? 'active' : ''}`} to="/mis-turnos">Mis turnos</Link>
-                            <Link className={`topbar-link ${isActive('/reservar') ? 'active' : ''}`} to="/reservar">Reservar turno</Link>
                         </>
                     )}
 
@@ -63,6 +49,12 @@ function Layout({ children }) {
                     )}
 
                     <Link className={`topbar-link ${isActive('/profile') ? 'active' : ''}`} to="/profile">Mi perfil</Link>
+                    <div style={{ margin: '20px 0' }}>
+                        <Link to="/perfil">
+                            Editar mi perfil
+                        </Link>
+                    </div>
+                    <button className="topbar-logout" onClick={handleLogout}>Cerrar sesión</button>
                 </nav>
             </header>
 

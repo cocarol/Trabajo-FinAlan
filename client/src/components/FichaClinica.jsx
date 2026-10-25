@@ -5,7 +5,7 @@ import Layout from "./Layout"
 
 function FichaClinica() {
 
-    const { pacienteId } = useParams()
+    const { id_paciente } = useParams()
     const [fichas, setFichas] = useState([])
     const [peso, setPeso] = useState("")
     const [altura, setAltura] = useState("")
@@ -16,7 +16,7 @@ function FichaClinica() {
     const token = localStorage.getItem('token')
 
     const fetchFichas = async () => {
-        const response = await axios.get(`http://localhost:3000/medico/ficha-clinica/${pacienteId}`, {
+        const response = await axios.get(`http://localhost:3000/medico/ficha-clinica/${id_paciente}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
         setFichas(response.data)
@@ -26,7 +26,7 @@ function FichaClinica() {
         setMensaje("")
         try {
             const response = await axios.post('http://localhost:3000/medico/ficha-clinica',
-                { pacienteId, peso, altura, presion, observaciones },
+                { id_paciente, peso, altura, presion, observaciones },
                 { headers: { Authorization: `Bearer ${token}` } }
             )
             setMensaje(response.data.message)

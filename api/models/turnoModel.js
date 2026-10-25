@@ -2,9 +2,9 @@ const { DataTypes } = require("sequelize")
 const { sequelize } = require("../config/db")
 
 const Turno = sequelize.define("Turno", {
-    pacienteId: {
+    id_paciente: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: true
     },
     especialidad: {
         type: DataTypes.STRING,

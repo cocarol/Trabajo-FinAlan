@@ -20,7 +20,7 @@ const registrar = async (req, res) => {
             password: passwordEncriptada
         });
 
-        res.status(201).json({ message: "Usuario creado con éxito", id: nuevoUsuario.id });
+        res.status(201).json({ message: "Usuario creado con éxito", id_usuario: nuevoUsuario.id_usuario });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -40,7 +40,7 @@ const login = async (req, res) => {
             return res.status(401).json({ message: "Contraseña incorrecta" });
         }
 
-        const token = jwt.sign({ id: usuario.id }, SECRET_KEY, { expiresIn: '2h' });
+        const token = jwt.sign({ id_usuario: usuario.id_usuario }, SECRET_KEY, { expiresIn: '2h' });
 
         res.status(200).json({ message: "Login exitoso", token });
     } catch (error) {

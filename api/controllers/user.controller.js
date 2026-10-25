@@ -24,7 +24,7 @@ const userRegister = async (req, res) => {
         })
 
         res.status(201).json({
-            id: userCreated.id,
+            id_usuario: userCreated.id_usuario,
             name: userCreated.name,
             email: userCreated.email
         })
@@ -50,7 +50,7 @@ const userLogin = async (req, res) => {
         }
 
         const token = await jwt.sign(
-            { id: searchedUser.id, email: searchedUser.email, role: searchedUser.role },
+            { id_usuario: searchedUser.id_usuario, email: searchedUser.email, role: searchedUser.role },
             'misecreto',
             { expiresIn: '1h' }
         )
