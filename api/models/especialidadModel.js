@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db')
+const { sequelize } = require('../config/db');
 
-const Esp = sequelize.define('Especialidad' ,{
+const Especialidad = sequelize.define('Especialidad' ,{
     id_especialidad: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -15,6 +15,9 @@ const Esp = sequelize.define('Especialidad' ,{
         type: DataTypes.STRING(100),
         allowNull: false
     }
+}, {
+    tableName: "especialidades",
+    timestamps: false
 })
 
-module.exports = Esp;
+module.exports = Especialidad;

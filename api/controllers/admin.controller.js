@@ -1,4 +1,4 @@
-const { User } = require('../models/index')
+const { User, Bitacora, Turno } = require('../models/index')
 const { registrarBitacora } = require('../utils/bitacora')
 const { calcularDVH, calcularDVV } = require('../utils/digitosVerificadores')
 const { encriptar } = require('../utils/encriptado')
@@ -81,7 +81,60 @@ const cambiarRol = async (req, res) => {
     }
 }
 
+// CU09
+
+const consultarBitacora = async (req, res) => {
+    try {
+        const registros = await Bitacora.findAll({
+            order: [['cod_bitacora', 'DESC']],
+            limit: 100
+        });
+
+        res.status(200).json(registros);
+    } catch (error) {
+        res.status(500).json({ message: "Error al consultar la bitácora", error });
+    }
+};
+
+// CU15 - Verificar Integridad de la Base de Datos
+const verificarIntegridad = async (req, res) => {
+    try {
+        const errores = [];
+
+        const usuarios = await User.findAll();
+        for (const user of usuarios) {
+            if (user.dvh) {
+                const esperado = calcularDVH({ id: user.id_usuario, email: user.email, role: user.role });
+                if (esperado !== user.dvh) {
+                    errores.push({ tabla: 'Users', id: user.id_usuario, error: 'DVH Corrupto' });
+                }
+            }
+        }
+
+        const turnos = await Turno.findAll();
+        for (const turno of turnos) {
+            if (turno.dvh) {
+                const datosFila = { id: turno.id, estado: turno.estado, id_paciente: turno.id_paciente };
+                const esperado = calcularDVH(datosFila);
+                if (esperado !== turno.dvh) {
+                    errores.push({ tabla: 'Turnos', id: turno.id, error: 'DVH Corrupto' });
+                }
+            }
+        }
+
+        if (errores.length > 0) {
+            return res.status(409).json({ message: "¡ALERTA! Se detectaron registros corruptos", errores });
+        }
+
+        res.status(200).json({ message: "Integridad garantizada. Todos los dígitos verificadores son correctos." });
+    } catch (error) {
+        res.status(500).json({ message: "Error al escanear la base de datos", error });
+    }
+};
+
 module.exports = {
     listarUsuarios,
-    cambiarRol
+    cambiarRol,
+    consultarBitacora,
+    verificarIntegridad
 }

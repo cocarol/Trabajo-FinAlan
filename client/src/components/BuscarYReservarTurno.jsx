@@ -9,17 +9,17 @@ function BuscarYReservarTurno() {
     const [turnosDisponibles, setTurnosDisponibles] = useState([])
     const [mensaje, setMensaje] = useState("")
     const [buscado, setBuscado] = useState(false)
+    const [listaEspecialidades, setListaEspecialidades] = useState([])
 
     const token = localStorage.getItem('token')
 
-    // Agregamos un useEffect para cargar los turnos por defecto al abrir la página
     useEffect(() => {
         cargarTurnosIniciales()
+        cargarEspecialidades()
     }, [])
 
     const cargarTurnosIniciales = async () => {
         try {
-            // Mandamos los params vacíos para traer todos los disponibles
             const response = await axios.get('http://localhost:3000/turnos/disponibles', {
                 params: { especialidad: "", fecha: "" },
                 headers: { Authorization: `Bearer ${token}` }
@@ -27,7 +27,15 @@ function BuscarYReservarTurno() {
             setTurnosDisponibles(response.data)
         } catch (error) {
             console.error("Error al cargar turnos iniciales:", error)
-            // No seteamos mensaje de error invasivo acá para no asustar al usuario al entrar
+        }
+    }
+
+    const cargarEspecialidades = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/catalogo/especialidades')
+            setListaEspecialidades(response.data)
+        } catch (error) {
+            console.error("Error al cargar especialidades:", error)
         }
     }
 
@@ -48,9 +56,10 @@ function BuscarYReservarTurno() {
 
     const reservar = async (turnoId) => {
         try {
+            const tokenActual = localStorage.getItem('token')
             const response = await axios.post('http://localhost:3000/turnos/reservar',
                 { turnoId },
-                { headers: { Authorization: `Bearer ${token}` } }
+                { headers: { Authorization: `Bearer ${tokenActual}` } }
             )
             setMensaje("Turno reservado con éxito. Lo vas a encontrar en 'Mis turnos' para completar el pago.")
             setTurnosDisponibles(turnosDisponibles.filter(t => t.id !== turnoId))
@@ -59,13 +68,13 @@ function BuscarYReservarTurno() {
         }
     }
 
-    // Funcionalidad extra: Limpiar filtros y volver a mostrar todos
     const limpiarFiltros = () => {
         setEspecialidad("")
         setFecha("")
         setMensaje("")
         setBuscado(false)
         cargarTurnosIniciales()
+        cargarEspecialidades()
     }
 
     return (
@@ -78,15 +87,27 @@ function BuscarYReservarTurno() {
             <div className="form-card" style={{ maxWidth: '700px', display: 'flex', gap: '12px', alignItems: 'flex-end', marginBottom: '24px', flexWrap: 'wrap' }}>
                 <div className="form-field" style={{ flex: 1, minWidth: '200px', marginBottom: 0 }}>
                     <label>Especialidad</label>
-                    <input type="text" placeholder="Ej: Cardiología" value={especialidad} onChange={(e) => setEspecialidad(e.target.value)} />
+                    <select
+                        value={especialidad}
+                        onChange={(e) => setEspecialidad(e.target.value)}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #ccc' }}
+                    >
+                        <option value="">Todas las especialidades</option>
+                        {listaEspecialidades.map((esp) => (
+                            <option key={esp.id_especialidad} value={esp.nombre_especialidad}>
+                                {esp.nombre_especialidad}
+                            </option>
+                        ))}
+                    </select>
                 </div>
+
                 <div className="form-field" style={{ flex: 1, minWidth: '150px', marginBottom: 0 }}>
                     <label>Fecha</label>
                     <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
                 </div>
+
                 <button className="btn-primario" onClick={buscarTurnos}>Buscar</button>
                 
-                {/* Mostramos el botón de limpiar solo si hay filtros aplicados o se hizo una búsqueda */}
                 {(especialidad || fecha || buscado) && (
                     <button className="btn-secundario" onClick={limpiarFiltros} style={{ background: '#f5f5f5', color: '#333', border: '1px solid #ccc' }}>
                         Limpiar filtros

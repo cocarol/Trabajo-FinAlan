@@ -7,6 +7,7 @@ const userRoutes = require('./routes/user.route')
 const turnoRoutes = require('./routes/turno.route')
 const medicoRoutes = require('./routes/medico.route')
 const adminRoutes = require('./routes/admin.route')
+const catalogoRoutes = require('./routes/catalogo.route')
 server.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
@@ -23,6 +24,7 @@ server.use('/medico', medicoRoutes)
 server.use('/users', userRoutes)
 server.use('/turnos', turnoRoutes)
 server.use('/admin', adminRoutes)
+server.use('/catalogo', catalogoRoutes)
 
 server.listen(3000, async () => {
     await sequelize.authenticate()
