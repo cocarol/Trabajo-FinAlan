@@ -1,14 +1,21 @@
 import { Link } from 'react-router-dom';
 import Layout from './Layout';
-import heroImg from '../assets/piri.jpg'; 
+import heroImg from '../assets/piri.jpg';
+import { jwtDecode } from 'jwt-decode'; // Importante agregar esto
 
 export default function Home() {
     const token = localStorage.getItem('token');
+    let rol = null;
+
+    if (token) {
+        try {
+            rol = jwtDecode(token).role || 'paciente';
+        } catch {}
+    }
 
     return (
         <Layout>
             <div className="home-wrapper">
-                
                 <section className="hero-section">
                     <div className="hero-text">
                         <div className="eyebrow" style={{ marginBottom: '10px' }}>
@@ -24,17 +31,15 @@ export default function Home() {
                         
                         <div className="hero-buttons">
                             {token ? (
-                                <Link to="/reservar" className="btn-link-primario">
-                                    Reservar un turno ahora
-                                </Link>
+                                <>
+                                    {rol === 'paciente' && <Link to="/reservar" className="btn-link-primario">Reservar un turno ahora</Link>}
+                                    {rol === 'medico' && <Link to="/medico/panel" className="btn-link-primario">Ir a mi Panel Médico</Link>}
+                                    {rol === 'admin' && <Link to="/admin/roles" className="btn-link-primario">Ir al Panel de Administración</Link>}
+                                </>
                             ) : (
                                 <>
-                                    <Link to="/login" className="btn-link-primario">
-                                        Ingresar a mi cuenta
-                                    </Link>
-                                    <Link to="/register" className="btn-link-secundario">
-                                        Registrarme gratis
-                                    </Link>
+                                    <Link to="/login" className="btn-link-primario">Ingresar a mi cuenta</Link>
+                                    <Link to="/register" className="btn-link-secundario">Registrarme gratis</Link>
                                 </>
                             )}
                         </div>

@@ -10,6 +10,7 @@ const medicoRoutes = require('./routes/medico.route')
 const adminRoutes = require('./routes/admin.route')
 const catalogoRoutes = require('./routes/catalogo.route')
 const User = require('./models/User.model')
+const { cargarDatosIniciales } = require("./utils/datos")
 
 server.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173')
@@ -32,6 +33,8 @@ server.use('/catalogo', catalogoRoutes)
 server.listen(3000, async () => {
     await sequelize.authenticate()
     await sequelize.sync({ alter: true })
+
+    await cargarDatosIniciales()
     console.log("El Server esta ON");
 
 

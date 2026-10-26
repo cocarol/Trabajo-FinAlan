@@ -123,7 +123,7 @@ const verificarIntegridad = async (req, res) => {
         }
 
         if (errores.length > 0) {
-            return res.status(409).json({ message: "¡ALERTA! Se detectaron registros corruptos", errores });
+            return res.status(409).json({ message: "Se detectaron registros corruptos", errores });
         }
 
         res.status(200).json({ message: "Integridad garantizada. Todos los dígitos verificadores son correctos." });

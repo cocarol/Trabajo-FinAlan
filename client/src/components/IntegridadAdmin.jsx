@@ -9,7 +9,7 @@ export default function IntegridadAdmin() {
 
     const verificarIntegridad = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/integridad', {
+            const response = await axios.get('http://localhost:3000/admin/integridad', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setResultado(response.data.message);
@@ -30,27 +30,29 @@ export default function IntegridadAdmin() {
     }, [])
 
     return (
-        <div className="panel-integridad">
-            <h2>Motor de Integridad (CU15)</h2>
-            <button className="btn-primario" onClick={verificarIntegridad}>
-                Escanear Base de Datos
-            </button>
-            
-            {resultado && (
-                <p className={`resultado-integridad ${errores.length > 0 ? 'resultado-peligro' : 'resultado-exito'}`}>
-                    {resultado}
-                </p>
-            )}
-            
-            {errores.length > 0 && (
-                <ul className="lista-errores">
-                    {errores.map((err, idx) => (
-                        <li key={idx}>
-                            <strong>Tabla:</strong> {err.tabla} | <strong>ID Registro:</strong> {err.id} | <strong>Falla:</strong> {err.error}
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
+        <Layout>
+            <div className="panel-integridad">
+                <h2>Motor de Integridad (CU15)</h2>
+                <button className="btn-primario" onClick={verificarIntegridad}>
+                    Escanear Base de Datos
+                </button>
+
+                {resultado && (
+                    <p className={`resultado-integridad ${errores.length > 0 ? 'resultado-peligro' : 'resultado-exito'}`}>
+                        {resultado}
+                    </p>
+                )}
+
+                {errores.length > 0 && (
+                    <ul className="lista-errores">
+                        {errores.map((err, idx) => (
+                            <li key={idx}>
+                                <strong>Tabla:</strong> {err.tabla} | <strong>ID Registro:</strong> {err.id} | <strong>Falla:</strong> {err.error}
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+        </Layout>
     );
 }

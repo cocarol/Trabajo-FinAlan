@@ -114,7 +114,7 @@ function BuscarYReservarTurno() {
                 </button>
                 
                 {(especialidad || fecha || buscado) && (
-                    <button className="btn-primario" onClick={limpiarFiltros}>
+                    <button className="btn-limpiar" onClick={limpiarFiltros}>
                         Limpiar filtros
                     </button>
                 )}

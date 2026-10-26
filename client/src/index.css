@@ -207,9 +207,11 @@ p { margin: 0 0 0.6em 0; }
   background: transparent;
   color: var(--verde-clinico);
   border: 1px solid var(--verde-clinico);
-  padding: 3px 10px;
-  border-radius: 100px;
-  font-size: 0.78rem;
+  padding: 11px 20px;
+  border-radius: 6px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -219,6 +221,16 @@ p { margin: 0 0 0.6em 0; }
   border-radius: 100px;
   font-weight: 500; */
 
+.btn-pagar {
+  background: transparent;
+  color: var(--verde-clinico);
+  border: 1px solid var(--verde-clinico);
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+  
 .btn-peligro {
   background: var(--rojo-suave);
   color: var(--rojo-clinico);
@@ -375,14 +387,13 @@ p { margin: 0 0 0.6em 0; }
 .btn-link-secundario {
   background: transparent;
   color: var(--verde-clinico);
-  border: 2px solid var(--verde-clinico);
-  padding: 12px 28px; /* Ligeramente menos padding para compensar el borde */
+  padding: 14px 28px;
   font-size: 1rem;
   border-radius: 6px;
-  font-weight: 600;
+  font-weight: 500;
   text-decoration: none;
   display: inline-block;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease;
 }
 
 .btn-link-secundario:hover {
@@ -398,7 +409,43 @@ p { margin: 0 0 0.6em 0; }
 .hero-image img {
   max-width: 60%;
   border-radius: 12px;
-  mix-blend-mode: multiply; /* Para imágenes con fondo blanco puro */
+  mix-blend-mode: multiply;
+}
+
+/*Mis Turnos y Pagos*/
+.turno-acciones {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-pago-inline {
+  max-width: 400px;
+  margin-bottom: 16px;
+  margin-top: -4px;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-cerrar-panel {
+  margin-top: 12px;
+  width: 100%;
+  text-align: center;
+  display: block;
+}
+
+.comprobante-titulo {
+  margin: 0;
+  color: var(--tinta-suave);
+  font-size: 0.85rem;
+}
+
+.comprobante-token {
+  margin: 6px 0 0 0;
+  font-size: 0.78rem;
+  color: var(--tinta-suave);
 }
 
 /*Indicador de Usuario (Header)*/
@@ -590,10 +637,16 @@ p { margin: 0 0 0.6em 0; }
 }
 
 .btn-limpiar {
-  background: var(--blanco);
-  color: var(--tinta-suave);
+  background: var(--verde-suave);
+  color: var(--negro);
   border: 1px solid var(--borde);
-  transition: all 0.15s ease;
+  padding: 11px 20px;
+  border-radius: 6px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
 .btn-limpiar:hover {

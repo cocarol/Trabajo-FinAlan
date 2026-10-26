@@ -33,7 +33,7 @@ function App() {
       <Route element={<RutaMedico><VincularPaciente /></RutaMedico>} path='/medico/vincular' />
       <Route element={<RutaPaciente><BuscarYReservarTurno /></RutaPaciente>} path='/reservar' />
       <Route element={<EditarPerfil />} path="/perfil"/>
-      <Route element={<IntegridadAdmin />} path="/integridad"/>
+      <Route element={<IntegridadAdmin />} path="/admin/integridad"/>
       <Route element={<RutaAdmin><GestionRoles /></RutaAdmin>} path='/admin/roles' />
     </Routes>
   )
