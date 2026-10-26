@@ -9,61 +9,102 @@ function Layout({ children }) {
 
     const handleLogout = () => {
         localStorage.removeItem('token')
-        navigate('/login')
+        navigate('/')
     }
+    
     const token = localStorage.getItem('token')
-    let rol = 'paciente'
-    try { rol = jwtDecode(token)?.role || 'paciente'
-    } catch {}
+    
+    let rol = null;
+    let usuarioLogueado = null;
+    
+    if (token) {
+        try {
+            const decoded = jwtDecode(token);
+            rol = decoded.role || 'paciente';
+            
+            if (decoded.email) {
+                usuarioLogueado = decoded.email.split('@')[0];
+            } else if (decoded.name) {
+                usuarioLogueado = decoded.name;
+            }
+        } catch { 
+        }
+    }
 
     const esMedico = rol === 'medico'
+    const esAdmin = rol === 'admin'
+    const esPaciente = rol === 'paciente'
 
     return (
         <div className="app-layout">
             <header className="topbar">
-                <Link to="/mis-turnos" className="topbar-brand">
+                <Link to="/" className="topbar-brand">
                     <span className="cruz"></span>
                     Turnos Salud
                 </Link>
 
                 <nav className="topbar-nav">
-                    {!esMedico && (
-                        <Link className="topbar-link" to="/reservar">Reservar turno</Link>
-                    )}
-                    
-                    {rol === 'paciente' && (
+                    {!token ? (
+                        <div className="guest-buttons">
+                            <Link to="/login" className="btn-secundario" style={{textDecoration: 'none'}}>Ingresar</Link>
+                            <Link to="/register" className="btn-primario" style={{textDecoration: 'none'}}>Crear Cuenta</Link>
+                        </div>
+                    ) : (
                         <>
-                            <Link className={`topbar-link ${isActive('/mis-turnos') ? 'active' : ''}`} to="/mis-turnos">Mis turnos</Link>
+                            {esPaciente && (
+                                <>
+                                    <Link className={`topbar-link ${isActive('/reservar') ? 'active' : ''}`} to="/reservar">Reservar turno</Link>
+                                    <Link className={`topbar-link ${isActive('/mis-turnos') ? 'active' : ''}`} to="/mis-turnos">Mis turnos</Link>
+                                </>
+                            )}
+
+                            {esMedico && (
+                                <>
+                                    <Link className={`topbar-link ${isActive('/medico/panel') ? 'active' : ''}`} to="/medico/panel">Panel médico</Link>
+                                    <Link className={`topbar-link ${isActive('/medico/vincular') ? 'active' : ''}`} to="/medico/vincular">Agregar paciente</Link>
+                                </>
+                            )}
+
+                            {esAdmin && (
+                                <>
+                                    <Link className={`topbar-link ${isActive('/admin/roles') ? 'active' : ''}`} to="/admin/roles">Roles y usuarios</Link>
+                                    <Link className={`topbar-link ${isActive('/admin/integridad') ? 'active' : ''}`} to="/admin/integridad">Integridad</Link>
+                                </>
+                            )}
+
+                            <Link className={`topbar-link ${isActive('/profile') ? 'active' : ''}`} to="/profile">Mi perfil</Link>
+                            
+                            <div className="user-indicator-wrapper">
+                                <span className="user-indicator">
+                                    <div className="status-dot"></div>
+                                    {usuarioLogueado}
+                                </span>
+                                <button className="topbar-logout" onClick={handleLogout}>Salir</button>
+                            </div>
                         </>
                     )}
-
-                    {rol === 'medico' && (
-                        <>
-                            <Link className={`topbar-link ${isActive('/medico/panel') ? 'active' : ''}`} to="/medico/panel">Panel médico</Link>
-                            <Link className={`topbar-link ${isActive('/medico/vincular') ? 'active' : ''}`} to="/medico/vincular">Agregar paciente</Link>
-                        </>
-                    )}
-
-                    {rol === 'admin' && (
-                        <Link className={`topbar-link ${isActive('/admin/roles') ? 'active' : ''}`} to="/admin/roles">Roles y usuarios</Link>
-                    )}
-
-                    <Link className={`topbar-link ${isActive('/profile') ? 'active' : ''}`} to="/profile">Mi perfil</Link>
-                    <div style={{ margin: '20px 0' }}>
-                        <Link to="/perfil">
-                            Editar mi perfil
-                        </Link>
-                    </div>
-                    <button className="topbar-logout" onClick={handleLogout}>Cerrar sesión</button>
                 </nav>
             </header>
 
             <main className="main-content">
                 {children}
             </main>
+
+            <footer className="app-footer">
+                <div className="footer-content">
+                    <div>
+                        © {new Date().getFullYear()} Turnos Salud. Todos los derechos reservados.
+                    </div>
+                    
+                    <div className="footer-links">
+                        <Link to="/contacto">Soporte Técnico</Link>
+                        <Link to="/privacidad">Políticas de Privacidad</Link>
+                        <Link to="/terminos">Términos de Uso</Link>
+                    </div>
+                </div>
+            </footer>
         </div>
     )
 }
-
 
 export default Layout

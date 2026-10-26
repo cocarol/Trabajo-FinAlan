@@ -15,12 +15,13 @@ import RutaPaciente from "./components/RutaPaciente"
 import EditarPerfil from './components/EditarPerfil'
 import RutaAdmin from "./components/RutaAdmin"
 import GestionRoles from "./components/GestionRoles"
-
+import IntegridadAdmin from './components/IntegridadAdmin'
+import Home from './components/Home';
 
 function App() {
   return (
     <Routes>
-      <Route element={<Navigate to="/mis-turnos" />} path='/' />
+      <Route path="/" element={<Home />} />
       <Route element={<Login />} path='/login' />
       <Route element={<Register />} path='/register' />
       <Route element={<PrivateRoute><Profile /></PrivateRoute>} path='/profile' />
@@ -32,6 +33,7 @@ function App() {
       <Route element={<RutaMedico><VincularPaciente /></RutaMedico>} path='/medico/vincular' />
       <Route element={<RutaPaciente><BuscarYReservarTurno /></RutaPaciente>} path='/reservar' />
       <Route element={<EditarPerfil />} path="/perfil"/>
+      <Route element={<IntegridadAdmin />} path="/integridad"/>
       <Route element={<RutaAdmin><GestionRoles /></RutaAdmin>} path='/admin/roles' />
     </Routes>
   )

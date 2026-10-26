@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-export default function AuditoriaAdmin() {
+export default function IntegridadAdmin() {
     const [resultado, setResultado] = useState(null);
     const [errores, setErrores] = useState([]);
     const token = localStorage.getItem('token');
@@ -19,21 +19,30 @@ export default function AuditoriaAdmin() {
                 setErrores(error.response.data.errores);
             } else {
                 setResultado("Error al conectar con el servidor.");
+                setErrores([]);
             }
         }
     };
 
     return (
-        <div style={{ padding: '20px', border: '1px solid red', borderRadius: '8px', marginTop: '20px' }}>
+        <div className="panel-integridad">
             <h2>Motor de Integridad (CU15)</h2>
-            <button className="btn-primario" onClick={verificarIntegridad}>Escanear Base de Datos</button>
+            <button className="btn-primario" onClick={verificarIntegridad}>
+                Escanear Base de Datos
+            </button>
             
-            {resultado && <p style={{ marginTop: '15px', fontWeight: 'bold' }}>{resultado}</p>}
+            {resultado && (
+                <p className={`resultado-integridad ${errores.length > 0 ? 'resultado-peligro' : 'resultado-exito'}`}>
+                    {resultado}
+                </p>
+            )}
             
             {errores.length > 0 && (
-                <ul style={{ color: 'red' }}>
+                <ul className="lista-errores">
                     {errores.map((err, idx) => (
-                        <li key={idx}>Tabla: {err.tabla} | ID Registro: {err.id} | Falla: {err.error}</li>
+                        <li key={idx}>
+                            <strong>Tabla:</strong> {err.tabla} | <strong>ID Registro:</strong> {err.id} | <strong>Falla:</strong> {err.error}
+                        </li>
                     ))}
                 </ul>
             )}

@@ -80,17 +80,16 @@ function BuscarYReservarTurno() {
     return (
         <Layout>
             <h1>Reservar turno</h1>
-            <p style={{ color: 'var(--tinta-suave)', marginBottom: '24px' }}>
+            <p className="texto-descriptivo">
                 Buscá por especialidad y fecha para ver la disponibilidad
             </p>
 
-            <div className="form-card" style={{ maxWidth: '700px', display: 'flex', gap: '12px', alignItems: 'flex-end', marginBottom: '24px', flexWrap: 'wrap' }}>
-                <div className="form-field" style={{ flex: 1, minWidth: '200px', marginBottom: 0 }}>
+            <div className="form-card filtros-bar">
+                <div className="form-field campo-especialidad">
                     <label>Especialidad</label>
                     <select
                         value={especialidad}
                         onChange={(e) => setEspecialidad(e.target.value)}
-                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #ccc' }}
                     >
                         <option value="">Todas las especialidades</option>
                         {listaEspecialidades.map((esp) => (
@@ -101,24 +100,34 @@ function BuscarYReservarTurno() {
                     </select>
                 </div>
 
-                <div className="form-field" style={{ flex: 1, minWidth: '150px', marginBottom: 0 }}>
+                <div className="form-field campo-fecha">
                     <label>Fecha</label>
-                    <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
+                    <input 
+                        type="date" 
+                        value={fecha} 
+                        onChange={(e) => setFecha(e.target.value)} 
+                    />
                 </div>
 
-                <button className="btn-primario" onClick={buscarTurnos}>Buscar</button>
+                <button className="btn-primario" onClick={buscarTurnos}>
+                    Buscar
+                </button>
                 
                 {(especialidad || fecha || buscado) && (
-                    <button className="btn-secundario" onClick={limpiarFiltros} style={{ background: '#f5f5f5', color: '#333', border: '1px solid #ccc' }}>
+                    <button className="btn-primario" onClick={limpiarFiltros}>
                         Limpiar filtros
                     </button>
                 )}
             </div>
 
-            {mensaje && <div className={mensaje.includes("éxito") ? "mensaje-info" : "mensaje-error"}>{mensaje}</div>}
+            {mensaje && (
+                <div className={mensaje.includes("éxito") ? "mensaje-info" : "mensaje-error"}>
+                    {mensaje}
+                </div>
+            )}
 
             {buscado && turnosDisponibles.length === 0 && !mensaje && (
-                <p style={{ color: 'var(--tinta-suave)' }}>No hay turnos disponibles para esos criterios.</p>
+                <p className="texto-vacio">No hay turnos disponibles para esos criterios.</p>
             )}
 
             {turnosDisponibles.map(turno => (
@@ -127,7 +136,9 @@ function BuscarYReservarTurno() {
                         <div className="especialidad">{turno.especialidad}</div>
                         <div className="detalle">{turno.fecha} · {turno.horario} · {turno.ubicacion}</div>
                     </div>
-                    <button className="btn-primario" onClick={() => reservar(turno.id)}>Reservar</button>
+                    <button className="btn-primario" onClick={() => reservar(turno.id)}>
+                        Reservar
+                    </button>
                 </div>
             ))}
         </Layout>
