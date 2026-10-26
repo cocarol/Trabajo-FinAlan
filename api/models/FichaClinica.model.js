@@ -1,1 +1,1 @@
-// eliminado
+// eliminado (céntrate)

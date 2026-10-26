@@ -9,7 +9,7 @@ const ROLES_VALIDOS = ['paciente', 'medico', 'admin']
 const listarUsuarios = async (req, res) => {
     try {
         const usuarios = await User.findAll({
-            attributes: ['id', 'name', 'email', 'role', 'dni'],
+            attributes: ['id_usuario', 'name', 'email', 'role', 'dni'],
             order: [['name', 'ASC']]
         })
 
@@ -22,7 +22,7 @@ const listarUsuarios = async (req, res) => {
 // Pasos C-I: cambiar el rol de un usuario
 const cambiarRol = async (req, res) => {
     try {
-        const adminId = req.user.id
+        const adminId = req.user.id_usuario
         const { id } = req.params
         const { nuevoRol } = req.body
 
@@ -38,18 +38,18 @@ const cambiarRol = async (req, res) => {
         }
 
         // Un admin no puede quitarse el rol a sí mismo (se quedaría sin acceso)
-        if (user.id === adminId) {
+        if (user.id_usuario === adminId) {
             return res.status(400).json({ message: "No podés modificar tu propio rol" })
         }
 
         // F2: verificar consistencia del registro antes de modificarlo
         if (user.dvh) {
-            const esperado = calcularDVH({ id: user.id, email: user.email, role: user.role })
+            const esperado = calcularDVH({ id: user.id_usuario, email: user.email, role: user.role })
 
             if (esperado !== user.dvh) {
                 await registrarBitacora(adminId, "ALERTA_INTRUSION_ROLES", {
                     criticidad: "ALTA",
-                    usuarioAfectado: user.id
+                    usuarioAfectado: user.id_usuario
                 })
                 return res.status(409).json({ message: "Registro corrupto: fallo de consistencia DVV. Edición congelada." })
             }
@@ -58,8 +58,8 @@ const cambiarRol = async (req, res) => {
         const rolAnterior = user.role
 
         user.role = nuevoRol
-        user.firmaRol = encriptar(`${user.id}:${nuevoRol}`)             // paso F
-        user.dvh = calcularDVH({ id: user.id, email: user.email, role: nuevoRol })   // paso G
+        user.firmaRol = encriptar(`${user.id_usuario}:${nuevoRol}`)             // paso F
+        user.dvh = calcularDVH({ id: user.id_usuario , email: user.email, role: nuevoRol })   // paso G
         user.dvv = calcularDVV(user.dvh, user.dvv || "")
 
         await user.save()
@@ -67,14 +67,14 @@ const cambiarRol = async (req, res) => {
         // paso H: alerta de alta criticidad
         await registrarBitacora(adminId, "CAMBIAR_ROL", {
             criticidad: "ALTA",
-            usuarioAfectado: user.id,
+            usuarioAfectado: user.id_usuario,
             rolAnterior,
             rolNuevo: nuevoRol
         })
 
         res.status(200).json({
             message: `Rol actualizado: ahora ${user.name} es ${nuevoRol}`,
-            usuario: { id: user.id, name: user.name, email: user.email, role: user.role }
+            usuario: { id: user.id_usuario, name: user.name, email: user.email, role: user.role }
         })
     } catch (error) {
         res.status(500).json(error)

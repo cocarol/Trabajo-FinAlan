@@ -22,11 +22,11 @@ function GestionRoles() {
     }
 
     const guardarRol = async (usuario) => {
-        const nuevoRol = seleccion[usuario.id] || usuario.role
+        const nuevoRol = seleccion[usuario.id_usuario] || usuario.role
         setMensaje("")
 
         try {
-            const response = await axios.put(`http://localhost:3000/admin/usuarios/${usuario.id}/rol`,
+            const response = await axios.put(`http://localhost:3000/admin/usuarios/${usuario.id_usuario}/rol`,
                 { nuevoRol },
                 { headers: { Authorization: `Bearer ${token}` } }
             )
@@ -65,15 +65,15 @@ function GestionRoles() {
             </div>
 
             {filtrados.map(u => (
-                <div key={u.id} className="turno-card estado-pagado">
+                <div key={u.id_usuario} className="turno-card estado-pagado">
                     <div className="turno-info">
                         <div className="especialidad">{u.name}</div>
                         <div className="detalle">{u.email} · Rol actual: <span className="badge-estado disponible">{u.role}</span></div>
                     </div>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                         <select
-                            value={seleccion[u.id] || u.role}
-                            onChange={(e) => setSeleccion({ ...seleccion, [u.id]: e.target.value })}
+                            value={seleccion[u.id_usuario] || u.role}
+                            onChange={(e) => setSeleccion({ ...seleccion, [u.id_usuario]: e.target.value })}
                             style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--borde)' }}
                         >
                             <option value="paciente">Paciente</option>
