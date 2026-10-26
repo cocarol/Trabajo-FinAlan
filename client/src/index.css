@@ -848,3 +848,11 @@ p { margin: 0 0 0.6em 0; }
     text-align: center;
   }
 }
+.zona-peligro {
+  border: 1px solid var(--rojo-clinico);
+  background: var(--rojo-suave);
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 32px;
+  max-width: 420px;
+}

@@ -45,6 +45,13 @@ const User = sequelize.define("User", {
     dvv: {
         type: DataTypes.STRING,
         allowNull: true
+    },resetToken: {
+    type: DataTypes.STRING,
+    allowNull: true
+    },
+    resetExpira: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
 }, {
     tableName: "users",

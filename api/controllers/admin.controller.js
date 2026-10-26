@@ -54,6 +54,7 @@ const cambiarRol = async (req, res) => {
                 return res.status(409).json({ message: "Registro corrupto: fallo de consistencia DVV. Edición congelada." })
             }
         }
+        
 
         const rolAnterior = user.role
 

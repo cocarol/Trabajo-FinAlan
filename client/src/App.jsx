@@ -16,6 +16,9 @@ import RutaAdmin from "./components/RutaAdmin"
 import GestionRoles from "./components/GestionRoles"
 import IntegridadAdmin from './components/IntegridadAdmin'
 import Home from './components/Home';
+import RecuperarPassword from "./components/RecuperarPassword"
+import ResetPassword from "./components/ResetPassword"
+
 
 function App() {
   return (
@@ -33,6 +36,8 @@ function App() {
       <Route element={<RutaPaciente><BuscarYReservarTurno /></RutaPaciente>} path='/reservar' />
       <Route element={<IntegridadAdmin />} path="/admin/integridad"/>
       <Route element={<RutaAdmin><GestionRoles /></RutaAdmin>} path='/admin/roles' />
+      <Route element={<RecuperarPassword />} path='/recuperar' />
+      <Route element={<ResetPassword />} path='/reset-password/:token' />
     </Routes>
   )
 }

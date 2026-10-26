@@ -5,7 +5,7 @@ const sequelize = new Sequelize('examen3b', 'root', '', {
   dialect: 'mysql',
   logging: false
 });
-//hola
+
 module.exports = {
     sequelize
 }

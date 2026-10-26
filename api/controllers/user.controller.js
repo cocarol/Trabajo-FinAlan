@@ -1,6 +1,10 @@
-const { User } = require('../models/index')
+const { User, Turno, MedicoPaciente } = require('../models/index')
+const { sequelize } = require('../config/db')
+const { Op } = require('sequelize')
+const crypto = require('crypto')
 const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const { registrarBitacora } = require('../utils/bitacora')
+const { sellarUsuario } = require('../utils/integridadUsuario')
 
 const userRegister = async (req, res) => {
     try {
@@ -112,10 +116,202 @@ const updateProfile = async (req, res) => {
         res.status(500).json({ error: 'Error al actualizar: ' + error.message });
     }
 };
+const passwordValida = (password) => typeof password === 'string' && password.length >= 8
+
+const cambiarPassword = async (req, res) => {
+    try {
+        const { passwordActual, passwordNueva } = req.body
+
+        if (!passwordActual || !passwordNueva) {
+            return res.status(400).json({ message: "Debe completar todos los campos obligatorios." })
+        }
+
+        if (!passwordValida(passwordNueva)) {
+            return res.status(400).json({ message: "La contraseña nueva debe tener al menos 8 caracteres." })
+        }
+
+        const user = await User.findByPk(req.user.id)
+
+        if (!user) {
+            return res.status(404).json({ message: "Usuario no encontrado" })
+        }
+
+        const coincide = await bcrypt.compare(passwordActual, user.password)
+        if (!coincide) {
+            return res.status(401).json({ message: "La contraseña actual es incorrecta." })
+        }
+
+        const esLaMisma = await bcrypt.compare(passwordNueva, user.password)
+        if (esLaMisma) {
+            return res.status(400).json({ message: "La contraseña nueva debe ser distinta a la actual." })
+        }
+
+        user.password = await bcrypt.hash(passwordNueva, 11)
+        sellarUsuario(user)
+        await user.save()
+
+        await registrarBitacora(user.id_usuario, "CAMBIAR_PASSWORD", {})
+
+        res.status(200).json({ message: "Contraseña actualizada con éxito." })
+    } catch (error) {
+        res.status(500).json(error)
+    }
+}
+const eliminarCuenta = async (req, res) => {
+    const t = await sequelize.transaction()
+
+    try {
+        const userId = req.user.id
+        const { password } = req.body
+
+        if (!password) {
+            await t.rollback()
+            return res.status(400).json({ message: "Debe ingresar su contraseña para confirmar." })
+        }
+
+        const user = await User.findByPk(userId, { transaction: t })
+
+        if (!user) {
+            await t.rollback()
+            return res.status(404).json({ message: "Usuario no encontrado" })
+        }
+
+        const coincide = await bcrypt.compare(password, user.password)
+        if (!coincide) {
+            await t.rollback()
+            return res.status(401).json({ message: "La contraseña es incorrecta." })
+        }
+
+        // No dejar el sistema sin ningún administrador
+        if (user.role === 'admin') {
+            const cantidadAdmins = await User.count({ where: { role: 'admin' }, transaction: t })
+            if (cantidadAdmins <= 1) {
+                await t.rollback()
+                return res.status(409).json({ message: "Sos el único administrador: asigná otro antes de eliminar tu cuenta." })
+            }
+        }
+
+        // Turnos pagados vigentes: hay que cancelarlos primero (respeta la regla de las 24hs)
+        const hoy = new Date().toISOString().split('T')[0]
+        const pagadosVigentes = await Turno.count({
+            where: { pacienteId: userId, estado: 'Pagado', fecha: { [Op.gte]: hoy } },
+            transaction: t
+        })
+
+        if (pagadosVigentes > 0) {
+            await t.rollback()
+            return res.status(409).json({ message: "Tenés turnos pagados vigentes. Cancelalos antes de eliminar tu cuenta." })
+        }
+
+        // Los turnos reservados sin pagar vuelven a estar disponibles
+        await Turno.update(
+            { estado: 'Disponible', pacienteId: 0, dvh: null, dvv: null },
+            { where: { pacienteId: userId, estado: 'Reservado' }, transaction: t }
+        )
+
+        // Se limpian los vínculos médico-paciente donde participaba
+        await MedicoPaciente.destroy({
+            where: { [Op.or]: [{ medicoId: userId }, { pacienteId: userId }] },
+            transaction: t
+        })
+
+        await user.destroy({ transaction: t })
+        await t.commit()
+
+        await registrarBitacora(userId, "ELIMINAR_CUENTA", { email: user.email })
+
+        res.status(200).json({ message: "Tu cuenta fue eliminada correctamente." })
+    } catch (error) {
+        if (!t.finished) await t.rollback()
+        res.status(500).json(error)
+    }
+}
+const recuperarPassword = async (req, res) => {
+    try {
+        const { email } = req.body
+
+        if (!email) {
+            return res.status(400).json({ message: "Debe ingresar su correo." })
+        }
+
+        // Misma respuesta exista o no el correo: así no se puede averiguar quién está registrado
+        const respuesta = {
+            message: "Si el correo está registrado, vas a recibir un enlace para restablecer tu contraseña."
+        }
+
+        const user = await User.findOne({ where: { email } })
+
+        if (!user) {
+            return res.status(200).json(respuesta)
+        }
+
+        const token = crypto.randomBytes(32).toString('hex')
+
+        // Se guarda el HASH del token, no el token en sí
+        user.resetToken = crypto.createHash('sha256').update(token).digest('hex')
+        user.resetExpira = new Date(Date.now() + 15 * 60 * 1000) // 15 minutos
+        await user.save()
+
+        const enlace = `http://localhost:5173/reset-password/${token}`
+
+        // Simulación del envío de correo
+        console.log(`[RECUPERACIÓN] Enlace para ${email}: ${enlace}`)
+
+        await registrarBitacora(user.id_usuario, "SOLICITAR_RECUPERACION_PASSWORD", {})
+
+        // Solo en desarrollo, para poder probar sin servidor de correo
+        if (process.env.NODE_ENV !== 'production') {
+            respuesta.enlaceDemo = enlace
+        }
+
+        res.status(200).json(respuesta)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+}
+const resetearPassword = async (req, res) => {
+    try {
+        const { token, passwordNueva } = req.body
+
+        if (!token || !passwordValida(passwordNueva)) {
+            return res.status(400).json({ message: "Datos inválidos: la contraseña debe tener al menos 8 caracteres." })
+        }
+
+        const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
+
+        const user = await User.findOne({
+            where: {
+                resetToken: tokenHash,
+                resetExpira: { [Op.gt]: new Date() }
+            }
+        })
+
+        if (!user) {
+            return res.status(400).json({ message: "El enlace es inválido o ya venció. Solicitá uno nuevo." })
+        }
+
+        user.password = await bcrypt.hash(passwordNueva, 11)
+        user.resetToken = null      // el enlace queda de un solo uso
+        user.resetExpira = null
+        sellarUsuario(user)
+        await user.save()
+
+        await registrarBitacora(user.id_usuario, "RESTABLECER_PASSWORD", {})
+
+        res.status(200).json({ message: "Contraseña restablecida. Ya podés iniciar sesión." })
+    } catch (error) {
+        res.status(500).json(error)
+    }
+}
 
 module.exports = {
     userRegister,
     userLogin,
     getMe,
-    updateProfile
+    updateProfile,
+    passwordValida,
+    cambiarPassword,
+    eliminarCuenta,
+    recuperarPassword,
+    resetearPassword
 }

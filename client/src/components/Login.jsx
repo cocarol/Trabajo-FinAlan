@@ -49,6 +49,9 @@ function Login() {
                 <button className="btn-primario" onClick={submitLogin} style={{ width: '100%' }}>
                     Ingresar
                 </button>
+                <p style={{ textAlign: 'center', marginTop: '12px', fontSize: '0.9rem' }}>
+                    <Link to="/recuperar" style={{ color: 'var(--verde-clinico)', fontWeight: 600 }}>¿Olvidaste tu contraseña?</Link>
+                </p>
 
                 <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.9rem' }}>
                     ¿No tenés cuenta? <Link to="/register" style={{ color: 'var(--verde-clinico)', fontWeight: 600 }}>Registrarme</Link>
