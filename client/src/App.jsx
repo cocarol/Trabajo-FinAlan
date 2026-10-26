@@ -2,7 +2,7 @@ import { Route, Routes, Navigate } from 'react-router-dom'
 
 import Login from "./components/Login"
 import Register from "./components/Register"
-import Profile from "./components/Profile"
+import Perfil from "./components/Perfil"
 import PrivateRoute from "./components/PrivateRoute"
 import MisTurnos from "./components/MisTurnos"
 import BuscarYReservarTurno from "./components/BuscarYReservarTurno"
@@ -12,7 +12,6 @@ import PanelMedico from "./components/PanelMedico"
 import FichaClinica from "./components/FichaClinica"
 import VincularPaciente from "./components/VincularPaciente"
 import RutaPaciente from "./components/RutaPaciente"
-import EditarPerfil from './components/EditarPerfil'
 import RutaAdmin from "./components/RutaAdmin"
 import GestionRoles from "./components/GestionRoles"
 import IntegridadAdmin from './components/IntegridadAdmin'
@@ -24,7 +23,7 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route element={<Login />} path='/login' />
       <Route element={<Register />} path='/register' />
-      <Route element={<PrivateRoute><Profile /></PrivateRoute>} path='/profile' />
+      <Route element={<PrivateRoute><Perfil/></PrivateRoute>} path='/perfil' />
       <Route element={<PrivateRoute><MisTurnos /></PrivateRoute>} path='/mis-turnos' />
       <Route element={<PrivateRoute><BuscarYReservarTurno /></PrivateRoute>} path='/reservar' />
       <Route element={<PrivateRoute><CrearTurno /></PrivateRoute>} path='/crear-turno' />
@@ -32,7 +31,6 @@ function App() {
       <Route element={<RutaMedico><FichaClinica /></RutaMedico>} path='/medico/ficha/:id_paciente' />
       <Route element={<RutaMedico><VincularPaciente /></RutaMedico>} path='/medico/vincular' />
       <Route element={<RutaPaciente><BuscarYReservarTurno /></RutaPaciente>} path='/reservar' />
-      <Route element={<EditarPerfil />} path="/perfil"/>
       <Route element={<IntegridadAdmin />} path="/admin/integridad"/>
       <Route element={<RutaAdmin><GestionRoles /></RutaAdmin>} path='/admin/roles' />
     </Routes>

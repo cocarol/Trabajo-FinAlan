@@ -72,7 +72,7 @@ function Layout({ children }) {
                                 </>
                             )}
 
-                            <Link className={`topbar-link ${isActive('/profile') ? 'active' : ''}`} to="/profile">Mi perfil</Link>
+                            <Link className={`topbar-link ${isActive('/perfil') ? 'active' : ''}`} to="/perfil">Mi perfil</Link>
                             
                             <div className="user-indicator-wrapper">
                                 <span className="user-indicator">
