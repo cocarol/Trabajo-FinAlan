@@ -21,18 +21,18 @@ const listarPacientesDelDia = async (req, res) => {
             return res.status(404).json({ message: "No registra pacientes asignados para la fecha seleccionada." })
         }
 
-        const pacientesIds = turnosHoy.map(t => t.pacienteId)
+        const pacientesIds = turnosHoy.map(t => t.id_paciente)
         const pacientes = await User.findAll({
             where: { id: pacientesIds },
             attributes: ['id', 'name', 'email']
         })
 
         const resultado = turnosHoy.map(turno => {
-            const paciente = pacientes.find(p => p.id === turno.pacienteId)
+            const paciente = pacientes.find(p => p.id === turno.id_paciente)
             return {
                 turnoId: turno.id,
                 horario: turno.horario,
-                pacienteId: turno.pacienteId,
+                id_paciente: turno.id_paciente,
                 nombre: paciente ? paciente.name : "Desconocido",
                 especialidad: turno.especialidad
             }
@@ -50,15 +50,15 @@ const listarPacientesDelDia = async (req, res) => {
 const actualizarFichaClinica = async (req, res) => {
     try {
         const medicoId = req.user.id
-        const { pacienteId, peso, altura, presion, observaciones } = req.body
+        const { id_paciente, peso, altura, presion, observaciones } = req.body
 
-        const vinculo = await MedicoPaciente.findOne({ where: { medicoId, pacienteId } })
+        const vinculo = await MedicoPaciente.findOne({ where: { medicoId, id_paciente } })
         if (!vinculo) {
             return res.status(403).json({ message: "El paciente no pertenece a su lista de atención" })
         }
 
         const ficha = await FichaClinica.create({
-            pacienteId,
+            id_paciente,
             medicoId,
             peso: encriptar(peso),
             altura: encriptar(altura),
@@ -66,12 +66,12 @@ const actualizarFichaClinica = async (req, res) => {
             observaciones: encriptar(observaciones)
         })
 
-        const datosFila = { id: ficha.id, pacienteId, medicoId }
+        const datosFila = { id: ficha.id, id_paciente, medicoId }
         ficha.dvh = calcularDVH(datosFila)
         ficha.dvv = calcularDVV(ficha.dvh, "")
         await ficha.save()
 
-        await registrarBitacora(medicoId, "ACTUALIZAR_FICHA_CLINICA", { pacienteId })
+        await registrarBitacora(medicoId, "ACTUALIZAR_FICHA_CLINICA", { id_paciente })
 
         res.status(200).json({ message: "Ficha médica actualizada con éxito." })
     } catch (error) {
@@ -82,10 +82,10 @@ const actualizarFichaClinica = async (req, res) => {
 const verFichaClinica = async (req, res) => {
 // Para mostrar la ficha ya descifrada en el frontend
     try {
-        const { pacienteId } = req.params
+        const { id_paciente } = req.params
 
         const fichas = await FichaClinica.findAll({
-            where: { pacienteId },
+            where: { id_paciente },
             order: [['id', 'DESC']]
         })
 
@@ -115,20 +115,20 @@ const vincularPaciente = async (req, res) => {
             return res.status(404).json({ message: "El DNI ingresado no pertenece a ningún usuario registrado en la plataforma. Solicite al paciente que cree una cuenta." })
         }
 
-        const yaVinculado = await MedicoPaciente.findOne({ where: { medicoId, pacienteId: paciente.id } })
+        const yaVinculado = await MedicoPaciente.findOne({ where: { medicoId, id_paciente: paciente.id } })
 
         if (yaVinculado) {
             return res.status(400).json({ message: "El paciente ya forma parte de su lista activa." })
         }
 
-        const vinculo = await MedicoPaciente.create({ medicoId, pacienteId: paciente.id })
+        const vinculo = await MedicoPaciente.create({ medicoId, id_paciente: paciente.id })
 
-        const datosFila = { id: vinculo.id, medicoId, pacienteId: paciente.id }
+        const datosFila = { id: vinculo.id, medicoId, id_paciente: paciente.id }
         vinculo.dvh = calcularDVH(datosFila)
         vinculo.dvv = calcularDVV(vinculo.dvh, "")
         await vinculo.save()
 
-        await registrarBitacora(medicoId, "VINCULAR_PACIENTE", { pacienteId: paciente.id })
+        await registrarBitacora(medicoId, "VINCULAR_PACIENTE", { id_paciente: paciente.id })
 
         res.status(201).json({ message: "Paciente vinculado correctamente a su lista de atención." })
     } catch (error) {

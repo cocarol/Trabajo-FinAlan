@@ -41,9 +41,11 @@ h3 { font-size: 1.1rem; }
 
 p { margin: 0 0 0.6em 0; }
 
-/* ----- Layout general con sidebar ----- */
+/*Layout general con sidebar*/
 .app-layout {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .topbar {
@@ -141,8 +143,10 @@ p { margin: 0 0 0.6em 0; }
   padding: 40px 48px;
   max-width: 820px;
   margin: 0 auto;
+  flex: 1;
+  width: 100%;
 }
-/* ----- Formularios ----- */
+/*Formularios*/
 .form-card {
   background: var(--blanco);
   border: 1px solid var(--borde);
@@ -182,7 +186,7 @@ p { margin: 0 0 0.6em 0; }
   background: var(--blanco);
 }
 
-/* ----- Botones ----- */
+/*Botones*/
 .btn-primario {
   background: var(--verde-clinico);
   color: var(--blanco);
@@ -203,23 +207,41 @@ p { margin: 0 0 0.6em 0; }
   background: transparent;
   color: var(--verde-clinico);
   border: 1px solid var(--verde-clinico);
-  padding: 10px 18px;
+  padding: 11px 20px;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
 }
 
+/* display: inline-block;
+  font-size: 0.78rem;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-weight: 500; */
+
+.btn-pagar {
+  background: transparent;
+  color: var(--verde-clinico);
+  border: 1px solid var(--verde-clinico);
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+  
 .btn-peligro {
   background: var(--rojo-suave);
   color: var(--rojo-clinico);
   border: 1px solid var(--rojo-clinico);
-  padding: 7px 14px;
-  border-radius: 6px;
-  font-size: 0.85rem;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 0.78rem;
   cursor: pointer;
 }
 
-/* ----- Mensajes ----- */
+/*Mensajes*/
 .mensaje-error {
   background: var(--rojo-suave);
   color: var(--rojo-clinico);
@@ -238,7 +260,7 @@ p { margin: 0 0 0.6em 0; }
   margin-bottom: 14px;
 }
 
-/* ----- Tarjetas de turno ----- */
+/*Tarjetas de turno*/
 .turno-card {
   background: var(--blanco);
   border: 1px solid var(--borde);
@@ -280,7 +302,7 @@ p { margin: 0 0 0.6em 0; }
 .badge-estado.pagado { background: var(--verde-suave); color: var(--verde-clinico-oscuro); }
 .badge-estado.cancelado { background: var(--rojo-suave); color: var(--rojo-clinico); }
 
-/* ----- Comprobante de pago ----- */
+/*Comprobante de pago*/
 .comprobante {
   background: var(--verde-suave);
   border: 1px solid var(--verde-clinico);
@@ -294,4 +316,535 @@ p { margin: 0 0 0.6em 0; }
   font-size: 1.6rem;
   font-weight: 600;
   color: var(--verde-clinico-oscuro);
+}
+
+/*Landing Page (Home)*/
+
+.home-wrapper {
+  padding-bottom: 40px;
+}
+
+/*Sección Hero*/
+.hero-section {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  padding: 60px 40px;
+  background: var(--blanco);
+  border-radius: 16px;
+  border: 1px solid var(--borde);
+  margin-bottom: 60px;
+  box-shadow: 0 12px 30px rgba(11, 110, 100, 0.05);
+  flex-wrap: wrap;
+}
+
+.hero-text {
+  flex: 1 1 400px;
+}
+
+.hero-text h1 {
+  font-size: 3rem;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  letter-spacing: -1px;
+}
+
+.hero-text h1 span {
+  color: var(--verde-clinico);
+}
+
+.hero-desc {
+  font-size: 1.1rem;
+  color: var(--tinta-suave);
+  margin-bottom: 35px;
+  line-height: 1.6;
+  max-width: 480px;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+/*Enlaces con estilo de botón para el Home*/
+.btn-link-primario {
+  background: var(--verde-clinico);
+  color: var(--blanco);
+  padding: 14px 28px;
+  font-size: 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.15s ease;
+}
+
+.btn-link-primario:hover {
+  background: var(--verde-clinico-oscuro);
+}
+
+.btn-link-secundario {
+  background: transparent;
+  color: var(--verde-clinico);
+  padding: 14px 28px;
+  font-size: 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.15s ease;
+}
+
+.btn-link-secundario:hover {
+  background: var(--verde-clinico);
+  color: var(--blanco);
+}
+
+.hero-image {
+  flex: 1 1 300px;
+  text-align: center;
+}
+
+.hero-image img {
+  max-width: 60%;
+  border-radius: 12px;
+  mix-blend-mode: multiply;
+}
+
+/*Mis Turnos y Pagos*/
+.turno-acciones {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-pago-inline {
+  max-width: 400px;
+  margin-bottom: 16px;
+  margin-top: -4px;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-cerrar-panel {
+  margin-top: 12px;
+  width: 100%;
+  text-align: center;
+  display: block;
+}
+
+.comprobante-titulo {
+  margin: 0;
+  color: var(--tinta-suave);
+  font-size: 0.85rem;
+}
+
+.comprobante-token {
+  margin: 6px 0 0 0;
+  font-size: 0.78rem;
+  color: var(--tinta-suave);
+}
+
+/*Indicador de Usuario (Header)*/
+.user-indicator-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-left: 10px;
+  border-left: 1px solid var(--borde);
+  padding-left: 15px;
+}
+
+.user-indicator {
+  font-size: 0.9rem;
+  color: var(--verde-clinico-oscuro);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #2aa895;
+  border-radius: 50%;
+  box-shadow: 0 0 4px #2aa895;
+}
+
+.guest-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/*Sección de Beneficios*/
+.features-section {
+  margin-bottom: 60px;
+}
+
+.features-title {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 2rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.feature-card {
+  text-align: center;
+  padding: 30px 20px;
+  max-width: 100%;
+}
+
+.feature-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px auto;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.feature-icon.rapidez { background: var(--verde-suave); color: var(--verde-clinico-oscuro); }
+.feature-icon.seguridad { background: var(--ambar-suave); color: #8A6213; }
+.feature-icon.pagos { background: var(--rojo-suave); color: var(--rojo-clinico); }
+
+.feature-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.feature-card p {
+  color: var(--tinta-suave);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/*Call to Action Final*/
+.cta-section {
+  background: var(--verde-clinico);
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+}
+
+.cta-section h2 {
+  color: var(--blanco);
+  margin-bottom: 15px;
+}
+
+.cta-section p {
+  color: var(--verde-suave);
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+}
+
+.btn-cta {
+  background: var(--blanco);
+  color: var(--verde-clinico);
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.btn-cta:hover {
+  transform: translateY(-2px);
+}
+
+/*Panel de Auditoría / Integridad*/
+.panel-auditoria {
+  padding: 24px;
+  border: 1px solid var(--rojo-clinico);
+  border-radius: 10px;
+  margin-top: 24px;
+  background: var(--blanco);
+  max-width: 700px;
+}
+
+.panel-auditoria h2 {
+  margin-bottom: 16px;
+}
+
+.resultado-auditoria {
+  margin-top: 16px;
+  font-weight: 600;
+}
+
+.resultado-exito {
+  color: var(--verde-clinico-oscuro);
+}
+
+.resultado-peligro {
+  color: var(--rojo-clinico);
+}
+
+.lista-errores {
+  color: var(--rojo-clinico);
+  margin-top: 12px;
+  padding-left: 24px;
+  font-size: 0.9rem;
+}
+
+.lista-errores li {
+  margin-bottom: 6px;
+}
+
+/*Buscador de Turnos*/
+.texto-descriptivo {
+  color: var(--tinta-suave);
+  margin-bottom: 24px;
+}
+
+.texto-vacio {
+  color: var(--tinta-suave);
+  margin-top: 12px;
+}
+
+.filtros-bar {
+  max-width: 700px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.filtros-bar .form-field {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.filtros-bar .form-field.campo-especialidad {
+  min-width: 200px;
+}
+
+.filtros-bar .form-field.campo-fecha {
+  min-width: 150px;
+}
+
+.btn-limpiar {
+  background: var(--verde-suave);
+  color: var(--negro);
+  border: 1px solid var(--borde);
+  padding: 11px 20px;
+  border-radius: 6px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-limpiar:hover {
+  background: var(--fondo);
+  color: var(--tinta);
+  border-color: var(--tinta-suave);
+}
+
+/*Layout del Perfil*/
+.perfil-layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Menú lateral izquierdo */
+.perfil-sidebar {
+  min-width: 200px;
+  border-right: 1px solid var(--borde);
+  padding-right: 24px;
+}
+
+.perfil-nav-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 12px 16px;
+  color: var(--tinta-suave);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  margin-bottom: 8px;
+}
+
+.perfil-nav-item:hover {
+  background: var(--fondo);
+  color: var(--tinta);
+}
+
+.perfil-nav-item.active {
+  background: var(--verde-suave);
+  color: var(--verde-clinico-oscuro);
+  font-weight: 600;
+}
+
+/* Área central de contenido */
+.perfil-content {
+  flex: 1;
+  width: 100%;
+}
+
+/* Tarjeta superior (Avatar y encabezado) */
+.perfil-header-card {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.perfil-avatar {
+  width: 120px;
+  height: 120px;
+  background: var(--fondo);
+  border: 4px solid var(--verde-suave);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.perfil-avatar-svg {
+  width: 60px;
+  height: 60px;
+  fill: var(--borde);
+}
+
+.perfil-info-principal {
+  flex: 1;
+  min-width: 200px;
+}
+
+.perfil-info-principal h2 {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+
+.perfil-rol-badge {
+  display: inline-block;
+  background: var(--ambar-suave);
+  color: #8A6213;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.perfil-info-extra {
+  text-align: right;
+  color: var(--tinta-suave);
+  font-size: 0.95rem;
+}
+
+.perfil-info-extra p { margin-bottom: 6px; }
+
+/* Grid de tarjetas inferiores */
+.perfil-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.perfil-detalle-card {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.perfil-detalle-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--borde);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.perfil-dato-fila {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.perfil-dato-label {
+  color: var(--tinta-suave);
+  font-weight: 500;
+}
+
+.perfil-dato-valor {
+  color: var(--tinta);
+  font-weight: 600;
+  text-align: right;
+}
+
+/*Footer*/
+.app-footer {
+  background: var(--blanco);
+  border-top: 1px solid var(--borde);
+  padding: 24px 40px;
+  color: var(--tinta-suave);
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.footer-content {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-links a {
+  color: var(--tinta-suave);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.footer-links a:hover {
+  color: var(--verde-clinico);
+}
+
+@media (max-width: 600px) {
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
 }

@@ -24,7 +24,7 @@ const userRegister = async (req, res) => {
         })
 
         res.status(201).json({
-            id: userCreated.id,
+            id_usuario: userCreated.id_usuario,
             name: userCreated.name,
             email: userCreated.email
         })
@@ -50,7 +50,7 @@ const userLogin = async (req, res) => {
         }
 
         const token = await jwt.sign(
-            { id: searchedUser.id, email: searchedUser.email, role: searchedUser.role },
+            { id_usuario: searchedUser.id_usuario, email: searchedUser.email, role: searchedUser.role },
             'misecreto',
             { expiresIn: '1h' }
         )
@@ -63,7 +63,7 @@ const userLogin = async (req, res) => {
 
 const getMe = async (req, res) => {
     try {
-        const user = await User.findByPk(req.user.id, {
+        const user = await User.findByPk(req.user?.id_usuario || req.user?.id || req.user?.userId || req.user?.id_paciente, {
             attributes: { exclude: ['password'] }
         })
 
@@ -73,6 +73,7 @@ const getMe = async (req, res) => {
 
         res.status(200).json(user)
     } catch (error) {
+        console.error("Error en getMe:", error);
         res.status(500).json(error)
     }
 }
@@ -80,7 +81,7 @@ const getMe = async (req, res) => {
 const updateProfile = async (req, res) => {
     const t = await sequelize.transaction();
     try {
-        const userId = req.user.id_usuario;
+        const userId = req.user?.id_usuario || req.user?.id || req.user?.userId;
         const { name, email, dni, especialidad, matricula, obra_social, numero_afiliado, telefono } = req.body;
 
         const user = await User.findByPk(userId, { transaction: t });

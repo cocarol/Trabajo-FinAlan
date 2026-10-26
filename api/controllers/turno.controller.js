@@ -5,7 +5,7 @@ const { calcularDVH, calcularDVV } = require('../utils/digitosVerificadores')
 const cancelarTurno = async (req, res) => {
     try {
         const { turnoId } = req.params
-        const userId = req.user.id
+        const userId = req.user?.id_usuario || req.user?.id || req.user?.userId;
 
         const turno = await Turno.findByPk(turnoId)
 
@@ -13,7 +13,7 @@ const cancelarTurno = async (req, res) => {
             return res.status(404).json({ message: "Turno no encontrado" })
         }
 
-        if (turno.pacienteId !== userId) {
+        if (turno.id_paciente !== userId) {
             return res.status(403).json({ message: "Este turno no pertenece al usuario autenticado" })
         }
 
@@ -32,7 +32,7 @@ const cancelarTurno = async (req, res) => {
 
         turno.estado = "Cancelado"
 
-        const datosFila = { id: turno.id, estado: turno.estado, pacienteId: turno.pacienteId }
+        const datosFila = { id: turno.id, estado: turno.estado, id_paciente: turno.id_paciente }
         turno.dvh = calcularDVH(datosFila)
         turno.dvv = calcularDVV(turno.dvh, turno.dvv)
 
@@ -48,45 +48,59 @@ const cancelarTurno = async (req, res) => {
 
 const buscarTurnosDisponibles = async (req, res) => {
     try {
-        const { especialidad, fecha } = req.query
+        const { especialidad, fecha } = req.query;
 
-        const turnos = await Turno.findAll({
-            where: {
-                especialidad,
-                fecha,
-                estado: "Disponible"
-            }
-        })
+        const condiciones = {
+            estado: "Disponible"
+        };
 
-        if (turnos.length === 0) {
-            return res.status(404).json({ message: "No hay turnos disponibles para los criterios seleccionados." })
+        if (especialidad) {
+            condiciones.especialidad = especialidad;
+        }
+        
+        if (fecha) {
+            condiciones.fecha = fecha;
         }
 
-        res.status(200).json(turnos)
+        const turnos = await Turno.findAll({
+            where: condiciones
+        });
+
+        if (turnos.length === 0) {
+            return res.status(404).json({ message: "No hay turnos disponibles para los criterios seleccionados." });
+        }
+
+        res.status(200).json(turnos);
     } catch (error) {
-        res.status(500).json(error)
+        console.error("Error al buscar turnos:", error);
+        res.status(500).json({ message: "Error interno del servidor al buscar turnos." });
     }
 }
 
 const reservarTurno = async (req, res) => {
     try {
-        const { turnoId } = req.body
-        const userId = req.user.id
+        const { turnoId } = req.body;
+        
+        const userId = req.user?.id_usuario || req.user?.id || req.user?.userId;
 
-        const turno = await Turno.findByPk(turnoId)
+        if (!userId) {
+            return res.status(401).json({ message: "No se pudo identificar al usuario en la sesión." });
+        }
+
+        const turno = await Turno.findByPk(turnoId);
 
         if (!turno) {
-            return res.status(404).json({ message: "Turno no encontrado" })
+            return res.status(404).json({ message: "Turno no encontrado" });
         }
 
         if (turno.estado !== "Disponible") {
-            return res.status(400).json({ message: "El turno ya no está disponible" })
+            return res.status(400).json({ message: "El turno ya no está disponible" });
         }
 
-        turno.estado = "Reservado"
-        turno.pacienteId = userId
+        turno.estado = "Reservado";
+        turno.id_paciente = userId;
 
-        const datosFila = { id: turno.id, estado: turno.estado, pacienteId: turno.pacienteId }
+        const datosFila = { id: turno.id, estado: turno.estado, id_paciente: turno.id_paciente }
         turno.dvh = calcularDVH(datosFila)
         turno.dvv = calcularDVV(turno.dvh, turno.dvv)
 
@@ -103,7 +117,7 @@ const reservarTurno = async (req, res) => {
 const pagarConsulta = async (req, res) => {
     try {
         const { turnoId, metodoPago } = req.body
-        const userId = req.user.id
+        const userId = req.user?.id_usuario || req.user?.id || req.user?.userId;
 
         const turno = await Turno.findByPk(turnoId)
 
@@ -111,7 +125,7 @@ const pagarConsulta = async (req, res) => {
             return res.status(404).json({ message: "Turno no encontrado" })
         }
 
-        if (turno.pacienteId !== userId) {
+        if (turno.id_paciente !== userId) {
             return res.status(403).json({ message: "Este turno no pertenece al usuario autenticado" })
         }
 
@@ -154,10 +168,10 @@ const pagarConsulta = async (req, res) => {
 
 const misTurnos = async (req, res) => {
     try {
-        const userId = req.user.id
+        const userId = req.user?.id_usuario || req.user?.id || req.user?.userId;
 
         const turnos = await Turno.findAll({
-            where: { pacienteId: userId },
+            where: { id_paciente: userId },
             order: [['fecha', 'ASC']]
         })
 
@@ -189,7 +203,7 @@ const crearTurno = async (req, res) => {
             horario,
             ubicacion,
             estado: "Disponible",
-            pacienteId: 0
+            id_paciente: 0
         })
 
         res.status(201).json(turno)

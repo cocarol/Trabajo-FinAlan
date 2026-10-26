@@ -22,7 +22,7 @@ const auth = async (req, res, next) => {
 }
 const requireRole = (...rolesPermitidos) => async (req, res, next) => {
     try {
-        const user = await User.findByPk(req.user.id, { attributes: ['id', 'role'] })
+        const user = await User.findByPk(req.user.id_usuario, { attributes: ['id_usuario', 'role'] })
 
         if (!user || !rolesPermitidos.includes(user.role)) {
             return res.status(403).json({ message: "No cuenta con los permisos necesarios para esta acción" })

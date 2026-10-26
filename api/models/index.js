@@ -1,7 +1,7 @@
 const Administrador = require('./adminModel.js')
 const Consultorio = require('./consultorioModel.js')
 const Disponibilidad = require('./disponibilidadModel.js')
-const Especialidad = require('./diagnosticoModel.js')
+const Especialidad = require('./especialidadModel.js')
 const Factura = require('./facturaModel.js')
 const HistorialClinico = require('./historialclinicoModel.js')
 const Medico = require('./medicoModel.js')
@@ -44,5 +44,7 @@ Especialidad.belongsToMany(Medico, {
     through: 'MedicoEspecialidad',
     foreignKey: 'id_medico'
 });
+
+
 
 module.exports = { User, Turno, Bitacora, Administrador, Consultorio, Disponibilidad, Especialidad, Factura, HistorialClinico, Medico, MetodoPago, Notificacion, ObraSocial, Pago, RecetaMedica, Reserva, SalaEspera, Ubicacion}
