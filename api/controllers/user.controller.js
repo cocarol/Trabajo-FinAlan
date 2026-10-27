@@ -1,8 +1,9 @@
-const { User, Turno, MedicoPaciente } = require('../models/index')
+const { User, Turno, Medico } = require('../models/index')
 const { sequelize } = require('../config/db')
 const { Op } = require('sequelize')
 const crypto = require('crypto')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const { registrarBitacora } = require('../utils/bitacora')
 const { sellarUsuario } = require('../utils/integridadUsuario')
 
@@ -130,7 +131,7 @@ const cambiarPassword = async (req, res) => {
             return res.status(400).json({ message: "La contraseña nueva debe tener al menos 8 caracteres." })
         }
 
-        const user = await User.findByPk(req.user.id)
+        const user = await User.findByPk(req.user.id_usuario)
 
         if (user === null) {
             return res.status(404).json({ message: "Usuario no encontrado" })
@@ -161,7 +162,7 @@ const eliminarCuenta = async (req, res) => {
     const t = await sequelize.transaction()
 
     try {
-        const userId = req.user.id
+        const userId = req.user.id_usuario
         const { password } = req.body
 
         if (!password) {
@@ -194,7 +195,7 @@ const eliminarCuenta = async (req, res) => {
         // Turnos pagados vigentes: hay que cancelarlos primero 
         const hoy = new Date().toISOString().split('T')[0]
         const pagadosVigentes = await Turno.count({
-            where: { pacienteId: userId, estado: 'Pagado', fecha: { [Op.gte]: hoy } },
+            where: { id_paciente: userId, estado: 'Pagado', fecha: { [Op.gte]: hoy } },
             transaction: t
         })
 
@@ -205,15 +206,22 @@ const eliminarCuenta = async (req, res) => {
 
         // Los turnos reservados sin pagar vuelven a estar disponibles
         await Turno.update(
-            { estado: 'Disponible', pacienteId: 0, dvh: null, dvv: null },
-            { where: { pacienteId: userId, estado: 'Reservado' }, transaction: t }
+            { estado: 'Disponible', id_paciente: 0, dvh: null, dvv: null },
+            { where: { id_paciente: userId, estado: 'Reservado' }, transaction: t }
         )
 
         // Se limpian los vínculos médico-paciente donde participaba
-        await MedicoPaciente.destroy({
-            where: { [Op.or]: [{ medicoId: userId }, { pacienteId: userId }] },
-            transaction: t
-        })
+        if (user.role === 'medico') {
+            await Medico.destroy({
+                where: { id_usuario: userId },
+                transaction: t
+            });
+        } else if (user.role === 'paciente') {
+            await User.destroy({
+                where: { id_usuario: userId },
+                transaction: t
+            });
+        }
 
         await user.destroy({ transaction: t })
         await t.commit()
