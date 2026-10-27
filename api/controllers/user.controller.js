@@ -122,7 +122,7 @@ const cambiarPassword = async (req, res) => {
     try {
         const { passwordActual, passwordNueva } = req.body
 
-        if (!passwordActual || !passwordNueva) {
+        if (passwordActual === undefined || passwordNueva === undefined) {
             return res.status(400).json({ message: "Debe completar todos los campos obligatorios." })
         }
 
@@ -132,7 +132,7 @@ const cambiarPassword = async (req, res) => {
 
         const user = await User.findByPk(req.user.id)
 
-        if (!user) {
+        if (user === null) {
             return res.status(404).json({ message: "Usuario no encontrado" })
         }
 
@@ -191,7 +191,7 @@ const eliminarCuenta = async (req, res) => {
             }
         }
 
-        // Turnos pagados vigentes: hay que cancelarlos primero (respeta la regla de las 24hs)
+        // Turnos pagados vigentes: hay que cancelarlos primero 
         const hoy = new Date().toISOString().split('T')[0]
         const pagadosVigentes = await Turno.count({
             where: { pacienteId: userId, estado: 'Pagado', fecha: { [Op.gte]: hoy } },
