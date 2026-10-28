@@ -2,7 +2,7 @@ const { User, Bitacora, Turno } = require('../models/index')
 const { registrarBitacora } = require('../utils/bitacora')
 const { calcularDVH, calcularDVV } = require('../utils/digitosVerificadores')
 const { encriptar } = require('../utils/encriptado')
-
+//pene
 const ROLES_VALIDOS = ['paciente', 'medico', 'admin']
 
 // Pasos A-B: lista completa de usuarios
