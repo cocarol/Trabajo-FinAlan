@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require('sequelize');//pene cocaro 
 
 const sequelize = new Sequelize('examen3b', 'root', '', {
   host: 'localhost',
