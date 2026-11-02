@@ -69,6 +69,7 @@ function Layout({ children }) {
                                 <>
                                     <Link className={`topbar-link ${isActive('/admin/roles') ? 'active' : ''}`} to="/admin/roles">Roles y usuarios</Link>
                                     <Link className={`topbar-link ${isActive('/admin/integridad') ? 'active' : ''}`} to="/admin/integridad">Integridad</Link>
+                                    <Link className={`topbar-link ${isActive('/admin/mantenimiento') ? 'active' : ''}`} to="/admin/mantenimiento">Mantenimiento</Link>
                                 </>
                             )}
 
