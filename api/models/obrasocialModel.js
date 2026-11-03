@@ -17,8 +17,11 @@ const ObraSocial = sequelize.define('Obra_Social' ,{
     },
     plan_obrasocial: {
         type: DataTypes.STRING(20),
-        defaultValue: false
+        defaultValue: 'false' 
     }
+}, {
+    tableName: 'Obra_Socials',
+    timestamps: false 
 })
 
-module.exports = ObraSocial
+module.exports = ObraSocial;

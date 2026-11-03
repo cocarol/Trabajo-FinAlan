@@ -8,43 +8,72 @@ const Medico = require('./medicoModel.js')
 const MetodoPago = require('./metodopagoModel.js')
 const Notificacion = require('./notificacionModel.js')
 const ObraSocial = require('./obrasocialModel.js')
+const Paciente = require('./pacienteModel.js')
 const Pago = require('./pagoModel.js')
 const RecetaMedica = require('./recetamedicaModel.js')
 const Reserva = require('./reservaModel.js')
 const SalaEspera = require('./salaesperaModel.js')
 const User = require('./User.model.js')
+// const Usuario_ObraSocial = require('./usuarioObraSocialModel.js');
 const Turno = require('./turnoModel.js')
 const Bitacora = require('./bitacoraModel.js')
 const Ubicacion = require('./ubicacionModel.js')
 
+User.hasOne(Paciente, { foreignKey: 'id_usuario' });
+Paciente.belongsTo(User, { foreignKey: 'id_usuario' });
 
-Ubicacion.hasOne(SalaEspera);
-SalaEspera.belongsTo(Ubicacion);
-
-Consultorio.hasOne(Ubicacion, { foreignKey: 'id_consultorio' });
-Ubicacion.belongsTo(Consultorio, { foreignKey: 'id_consultorio' });
-
-User.hasOne(SalaEspera);
-SalaEspera.belongsTo(User);
-
-Medico.hasOne(Administrador, { foreignKey: 'id_medico' });
-Administrador.belongsTo(Medico, { foreignKey: 'id_medico' });
-
-Bitacora.hasOne(Administrador, { foreignKey: 'cod_bitacora' });
-Administrador.belongsTo(Bitacora, { foreignKey: 'cod_bitacora' });
+User.hasOne(Medico, { foreignKey: 'id_usuario' });
+Medico.belongsTo(User, { foreignKey: 'id_usuario' });
 
 User.hasOne(Administrador, { foreignKey: 'id_usuario' });
 Administrador.belongsTo(User, { foreignKey: 'id_usuario' });
 
 Medico.belongsToMany(Especialidad, {
-    through: 'MedicoEspecialidad',
-    foreignKey: 'id_especialidad'
+    through: 'Medico_Especialidad',
+    foreignKey: 'id_medico',
+    otherKey: 'id_especialidad'
 });
 Especialidad.belongsToMany(Medico, {
-    through: 'MedicoEspecialidad',
-    foreignKey: 'id_medico'
+    through: 'Medico_Especialidad',
+    foreignKey: 'id_especialidad',
+    otherKey: 'id_medico'
 });
 
+//USUARIO OBRA SOCIAL
 
+Medico.hasMany(Turno, { foreignKey: 'id_medico' });
+Turno.belongsTo(Medico, { foreignKey: 'id_medico' });
 
-module.exports = { User, Turno, Bitacora, Administrador, Consultorio, Disponibilidad, Especialidad, Factura, HistorialClinico, Medico, MetodoPago, Notificacion, ObraSocial, Pago, RecetaMedica, Reserva, SalaEspera, Ubicacion}
+User.hasMany(Turno, { foreignKey: 'id_paciente' });
+Turno.belongsTo(User, { foreignKey: 'id_paciente' });
+
+Consultorio.hasMany(Turno, { foreignKey: 'id_consultorio' });
+Turno.belongsTo(Consultorio, { foreignKey: 'id_consultorio' });
+
+User.hasMany(HistorialClinico, { foreignKey: 'id_usuario' });
+HistorialClinico.belongsTo(User, { foreignKey: 'id_usuario' });
+
+Medico.hasMany(HistorialClinico, { foreignKey: 'id_medico' });
+HistorialClinico.belongsTo(Medico, { foreignKey: 'id_medico' });
+
+MetodoPago.hasMany(Pago, { foreignKey: 'id_metodo_pago' });
+Pago.belongsTo(MetodoPago, { foreignKey: 'id_metodo_pago' });
+
+Turno.hasOne(Pago, { foreignKey: 'id_turno' });
+Pago.belongsTo(Turno, { foreignKey: 'id_turno' });
+
+Pago.hasOne(Factura, { foreignKey: 'id_pago' });
+Factura.belongsTo(Pago, { foreignKey: 'id_pago' });
+
+Ubicacion.hasMany(Consultorio, { foreignKey: 'id_ubicacion' });
+Consultorio.belongsTo(Ubicacion, { foreignKey: 'id_ubicacion' });
+
+Consultorio.hasMany(SalaEspera, { foreignKey: 'id_consultorio' });
+SalaEspera.belongsTo(Consultorio, { foreignKey: 'id_consultorio' });
+
+User.hasMany(Bitacora, { foreignKey: 'id_usuario' });
+Bitacora.belongsTo(User, { foreignKey: 'id_usuario' });
+
+module.exports = { 
+    User, Turno, Bitacora, Administrador, Consultorio, Disponibilidad, Especialidad, Factura, HistorialClinico, Medico, MetodoPago, Notificacion, ObraSocial, Paciente, Pago, RecetaMedica, Reserva, SalaEspera, Ubicacion, /*Usuario_ObraSocial*/
+} 

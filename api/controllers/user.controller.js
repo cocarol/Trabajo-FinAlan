@@ -1,4 +1,4 @@
-const { User, Turno, Medico } = require('../models/index')
+const { User, Turno, Medico, Paciente } = require('../models/index')
 const { sequelize } = require('../config/db')
 const { Op } = require('sequelize')
 const crypto = require('crypto')
@@ -192,7 +192,6 @@ const eliminarCuenta = async (req, res) => {
             }
         }
 
-        // Turnos pagados vigentes: hay que cancelarlos primero 
         const hoy = new Date().toISOString().split('T')[0]
         const pagadosVigentes = await Turno.count({
             where: { id_paciente: userId, estado: 'Pagado', fecha: { [Op.gte]: hoy } },
