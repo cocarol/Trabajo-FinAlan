@@ -7,7 +7,9 @@ const {
     buscarTurnosDisponibles,
     reservarTurno,
     pagarConsulta,
-    misTurnos
+    misTurnos,
+    historialTurnos,
+    confirmarTurno
 } = require('../controllers/turno.controller')
 
 const router = Router()
@@ -18,5 +20,7 @@ router.delete('/:turnoId/cancelar', auth, cancelarTurno)
 router.post('/pagar', auth, pagarConsulta)
 router.get('/mis-turnos', auth, misTurnos)
 router.post('/crear', auth, crearTurno)
+router.get('/historial', auth, historialTurnos);
+router.put('/:turnoId/confirmar', auth, confirmarTurno);
 
 module.exports = router

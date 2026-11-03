@@ -41,7 +41,7 @@ server.listen(3000, async () => {
 
 
     // const hashedPassword = await bcrypt.hash('123', 10)
-    // const [claudio] = await User.findOrCreate({
+    // const [claudio] = await User.findOrCreate({ 
     //   where: {
     //     email: 'claudio@medico.com'
     //   },

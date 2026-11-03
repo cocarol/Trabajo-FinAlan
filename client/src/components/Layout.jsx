@@ -101,6 +101,7 @@ function Layout({ children }) {
                         <Link to="/contacto">Soporte Técnico</Link>
                         <Link to="/privacidad">Políticas de Privacidad</Link>
                         <Link to="/terminos">Términos de Uso</Link>
+                        <Link to="/manual">Manual de Usuario</Link>
                     </div>
                 </div>
             </footer>

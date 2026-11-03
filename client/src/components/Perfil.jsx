@@ -13,7 +13,8 @@ function Perfil() {
     const [error, setError] = useState('');
     const [role, setRole] = useState('');
     const [pestanaActiva, setPestanaActiva] = useState('info');
-    
+    const [historial, setHistorial] = useState([]);
+
     const [formData, setFormData] = useState({
         name: '', email: '', dni: '',
         especialidad: '', matricula: '',
@@ -48,6 +49,17 @@ function Perfil() {
         }
     };
 
+    const fetchHistorial = async () => {
+        try {
+            const res = await axios.get('http://localhost:3000/turnos/historial', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setHistorial(res.data);
+        } catch (err) {
+            console.error("Error al cargar historial");
+        }
+    };
+
     useEffect(() => {
         if (!token) navigate('/login');
         else fetchPerfil();
@@ -76,13 +88,16 @@ function Perfil() {
     return (
         <Layout>
             <div className="perfil-layout">
-                
+
                 <aside className="perfil-sidebar">
                     <button className={`perfil-nav-item ${pestanaActiva === 'info' ? 'active' : ''}`} onClick={() => setPestanaActiva('info')}>
                         Info personal
                     </button>
                     {role === 'paciente' && (
-                        <button className="perfil-nav-item" onClick={() => navigate('/mis-turnos')}>
+                        <button
+                            className={`perfil-nav-item ${pestanaActiva === 'historial' ? 'active' : ''}`}
+                            onClick={() => { setPestanaActiva('historial'); fetchHistorial(); }}
+                        >
                             Historial / Visitas
                         </button>
                     )}
@@ -101,12 +116,29 @@ function Perfil() {
                             {mensaje && <div className="mensaje-info">{mensaje}</div>}
                             {error && <div className="mensaje-error">{error}</div>}
 
-                            {!editando ? (
+                            {pestanaActiva === 'historial' ? (
+                                <div className="form-card" style={{ maxWidth: '100%' }}>
+                                    <h2>Historial de Visitas</h2>
+                                    {historial.length === 0 ? (
+                                        <p className="texto-vacio">El paciente no posee registros de turnos anteriores en el sistema.</p>
+                                    ) : (
+                                        historial.map(turno => (
+                                            <div key={turno.id} className="perfil-detalle-card" style={{ marginBottom: '16px', padding: '16px' }}>
+                                                <div className="perfil-dato-fila">
+                                                    <span className="perfil-dato-label">{turno.fecha} - {turno.horario}</span>
+                                                    <span className="perfil-dato-valor">{turno.especialidad} | {turno.estado}</span>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+
+                            ) : !editando ? (
                                 <>
                                     <div className="perfil-header-card">
                                         <div className="perfil-avatar">
                                             <svg className="perfil-avatar-svg" viewBox="0 0 24 24">
-                                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                             </svg>
                                         </div>
                                         <div className="perfil-info-principal">
@@ -134,7 +166,7 @@ function Perfil() {
 
                                         <div className="perfil-detalle-card">
                                             <h3>{role === 'medico' ? 'Datos Profesionales' : 'Cobertura Médica'}</h3>
-                                            
+
                                             {role === 'medico' ? (
                                                 <>
                                                     <div className="perfil-dato-fila">

@@ -131,9 +131,10 @@ const generarBackup = async (adminId) => {
 
 const crearBackup = async (req, res) => {
     try {
-        const meta = await generarBackup(req.user.id)
+        const meta = await generarBackup(req.user?.id_usuario || req.user?.id || req.user?.userId || req.user?.id_paciente || req.user?.id_admin)
         res.status(201).json({ message: "Backup realizado con éxito.", backup: meta })
     } catch (error) {
+        console.log(error);
         manejarError(res, error)
     }
 }

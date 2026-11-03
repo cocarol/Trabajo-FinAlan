@@ -1,6 +1,7 @@
 const { Turno } = require('../models/index')
 const { registrarBitacora } = require('../utils/bitacora')
 const { calcularDVH, calcularDVV } = require('../utils/digitosVerificadores')
+const { Op } = require('sequelize')
 
 const cancelarTurno = async (req, res) => {
     try {
@@ -212,11 +213,75 @@ const crearTurno = async (req, res) => {
     }
 }
 
+//CU06
+const historialTurnos = async (req, res) => {
+    try {
+        const userId = req.user?.id_usuario || req.user?.id || req.user?.userId;
+        const hoy = new Date().toISOString().split('T')[0];
+
+        const turnos = await Turno.findAll({
+            where: { 
+                id_paciente: userId,
+                fecha: { [Op.lt]: hoy } 
+            },
+            order: [['fecha', 'DESC'], ['horario', 'DESC']]
+        });
+
+        await registrarBitacora(userId, "CONSULTAR_HISTORIAL", {});
+
+        res.status(200).json(turnos);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+};
+
+const confirmarTurno = async (req, res) => {
+    try {
+        const { turnoId } = req.params;
+        const userId = req.user?.id_usuario || req.user?.id || req.user?.userId;
+
+        const turno = await Turno.findByPk(turnoId);
+
+        if (!turno) return res.status(404).json({ message: "Turno no encontrado" });
+        if (turno.id_paciente !== userId) return res.status(403).json({ message: "Este turno no te pertenece" });
+
+        if (turno.estado === "Confirmado") {
+            return res.status(400).json({ message: "Esta asistencia ya ha sido registrada con anterioridad." });
+        }
+
+        const hoy = new Date().toISOString().split('T')[0];
+        if (turno.fecha < hoy) {
+            return res.status(400).json({ message: "No se puede confirmar asistencia a un turno pasado." });
+        }
+
+        if (turno.estado == "Reservado" && turno.estado == "Pagado") {
+            return res.status(400).json({ message: "El turno no se encuentra en un estado confirmable." });
+        }
+
+        turno.estado = "Confirmado";
+
+        const datosFila = { id: turno.id, estado: turno.estado, id_paciente: turno.id_paciente };
+        if (turno.monto) datosFila.monto = turno.monto;
+        
+        turno.dvh = calcularDVH(datosFila);
+        turno.dvv = calcularDVV(turno.dvh, turno.dvv || "");
+
+        await turno.save();
+        await registrarBitacora(userId, "CONFIRMAR_ASISTENCIA", { turnoId: turno.id });
+
+        res.status(200).json({ message: "Asistencia confirmada con éxito", turno });
+    } catch (error) {
+        res.status(500).json(error);
+    }
+};
+
 module.exports = {
     cancelarTurno,
     buscarTurnosDisponibles,
     reservarTurno,
     pagarConsulta,
     misTurnos,
-    crearTurno
+    crearTurno,
+    historialTurnos,
+    confirmarTurno
 }
