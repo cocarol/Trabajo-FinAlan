@@ -16,6 +16,14 @@ const Paciente = sequelize.define('Paciente', {
             key: 'id_usuario'
         }
     },
+    id_medico: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'medicos',
+            key: 'id_medico'
+        }
+    },
     obra_social: {
         type: DataTypes.STRING(50),
         allowNull: true

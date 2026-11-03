@@ -28,6 +28,9 @@ Medico.belongsTo(User, { foreignKey: 'id_usuario' });
 User.hasOne(Administrador, { foreignKey: 'id_usuario' });
 Administrador.belongsTo(User, { foreignKey: 'id_usuario' });
 
+Medico.hasMany(Paciente, { foreignKey: 'id_medico' });
+Paciente.belongsTo(Medico, { foreignKey: 'id_medico' });
+
 Medico.belongsToMany(Especialidad, {
     through: 'Medico_Especialidad',
     foreignKey: 'id_medico',

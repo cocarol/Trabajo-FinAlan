@@ -1,4 +1,4 @@
-const { Turno, User, FichaClinica, MedicoPaciente, Bitacora } = require('../models/index')
+const { Turno, User, FichaClinica, Paciente, Bitacora } = require('../models/index')
 const { registrarBitacora } = require('../utils/bitacora')
 const { calcularDVH, calcularDVV } = require('../utils/digitosVerificadores')
 const { encriptar, desencriptar } = require('../utils/encriptado')
@@ -105,39 +105,36 @@ const verFichaClinica = async (req, res) => {
 // CU12 - Registrar Paciente en la Lista del Médico
 const vincularPaciente = async (req, res) => {
     try {
-        const id_medico = req.user.id_usuario || req.user.id || req.user.id_paciente || req.user.id_medico; 
+        const id_medico = req.user.id_usuario || req.user.id; 
         const { dni } = req.body;
 
-        const paciente = await User.findOne({ where: { dni } });
-
-        if (!paciente) {
-            return res.status(404).json({ message: "El DNI ingresado no pertenece a ningún usuario registrado. Solicite al paciente que cree una cuenta." });
+        const usuario = await User.findOne({ where: { dni } });
+        if (!usuario) {
+            return res.status(404).json({ message: "El DNI ingresado no pertenece a ningún usuario registrado." });
         }
 
-        const yaVinculado = await MedicoPaciente.findOne({ 
-            where: { id_medico, id_paciente: paciente.id_usuario } 
-        });
+        const paciente = await Paciente.findOne({ where: { id_usuario: usuario.id_usuario } });
+        if (!paciente) {
+            return res.status(404).json({ message: "El usuario existe pero no cuenta con un perfil de paciente registrado." });
+        }
 
-        if (yaVinculado) {
+        if (paciente.id_medico === id_medico) {
             return res.status(400).json({ message: "El paciente ya forma parte de su lista activa." });
         }
 
-        const vinculo = await MedicoPaciente.create({ 
-            id_medico, 
-            id_paciente: paciente.id_usuario 
-        });
+        paciente.id_medico = id_medico;
 
-        const datosFila = { id: vinculo.id, id_medico, id_paciente: paciente.id_usuario };
-        vinculo.dvh = calcularDVH(datosFila);
-        vinculo.dvv = calcularDVV(vinculo.dvh, "");
-        await vinculo.save();
+        const datosFila = { id: paciente.id_paciente, id_usuario: paciente.id_usuario, id_medico };
+        paciente.dvh = calcularDVH(datosFila);
+        paciente.dvv = calcularDVV(paciente.dvh, "");
 
-        await registrarBitacora(id_medico, "VINCULAR_PACIENTE", { id_paciente: paciente.id_usuario });
+        await paciente.save();
+
+        await registrarBitacora(id_medico, "VINCULAR_PACIENTE", { id_paciente: paciente.id_paciente });
 
         res.status(201).json({ message: "Paciente vinculado correctamente a su lista de atención." });
     } catch (error) {
-        console.log(id_medico, paciente);
-        
+        console.error("Error al vincular DNI:", error);
         res.status(500).json(error);
     }
 }
