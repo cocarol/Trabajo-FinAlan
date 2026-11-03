@@ -6,7 +6,7 @@ const { encriptar, desencriptar } = require('../utils/encriptado')
 // CU05 - Visualizar Lista de Pacientes
 const listarPacientesDelDia = async (req, res) => {
     try {
-        const medicoId = req.user.id
+        const medicoId = req.user.id || req.user?.id_usuario || req.user?.id || req.user?.userId || req.user?.id_medico; 
         const hoy = new Date().toISOString().split('T')[0]
 
         const turnosHoy = await Turno.findAll({
@@ -49,7 +49,7 @@ const listarPacientesDelDia = async (req, res) => {
 // CU10 - Actualizar Información del Paciente
 const actualizarFichaClinica = async (req, res) => {
     try {
-        const medicoId = req.user.id
+        const medicoId = req.user.id || req.user?.id_usuario || req.user?.id || req.user?.userId || req.user?.id_medico; 
         const { id_paciente, peso, altura, presion, observaciones } = req.body
 
         const vinculo = await MedicoPaciente.findOne({ where: { medicoId, id_paciente } })
@@ -80,7 +80,6 @@ const actualizarFichaClinica = async (req, res) => {
 }
 
 const verFichaClinica = async (req, res) => {
-// Para mostrar la ficha ya descifrada en el frontend
     try {
         const { id_paciente } = req.params
 
@@ -106,33 +105,40 @@ const verFichaClinica = async (req, res) => {
 // CU12 - Registrar Paciente en la Lista del Médico
 const vincularPaciente = async (req, res) => {
     try {
-        const medicoId = req.user.id
-        const { dni } = req.body
+        const id_medico = req.user.id_usuario || req.user.id || req.user.id_paciente || req.user.id_medico; 
+        const { dni } = req.body;
 
-        const paciente = await User.findOne({ where: { dni } })
+        const paciente = await User.findOne({ where: { dni } });
 
         if (!paciente) {
-            return res.status(404).json({ message: "El DNI ingresado no pertenece a ningún usuario registrado en la plataforma. Solicite al paciente que cree una cuenta." })
+            return res.status(404).json({ message: "El DNI ingresado no pertenece a ningún usuario registrado. Solicite al paciente que cree una cuenta." });
         }
 
-        const yaVinculado = await MedicoPaciente.findOne({ where: { medicoId, id_paciente: paciente.id } })
+        const yaVinculado = await MedicoPaciente.findOne({ 
+            where: { id_medico, id_paciente: paciente.id_usuario } 
+        });
 
         if (yaVinculado) {
-            return res.status(400).json({ message: "El paciente ya forma parte de su lista activa." })
+            return res.status(400).json({ message: "El paciente ya forma parte de su lista activa." });
         }
 
-        const vinculo = await MedicoPaciente.create({ medicoId, id_paciente: paciente.id })
+        const vinculo = await MedicoPaciente.create({ 
+            id_medico, 
+            id_paciente: paciente.id_usuario 
+        });
 
-        const datosFila = { id: vinculo.id, medicoId, id_paciente: paciente.id }
-        vinculo.dvh = calcularDVH(datosFila)
-        vinculo.dvv = calcularDVV(vinculo.dvh, "")
-        await vinculo.save()
+        const datosFila = { id: vinculo.id, id_medico, id_paciente: paciente.id_usuario };
+        vinculo.dvh = calcularDVH(datosFila);
+        vinculo.dvv = calcularDVV(vinculo.dvh, "");
+        await vinculo.save();
 
-        await registrarBitacora(medicoId, "VINCULAR_PACIENTE", { id_paciente: paciente.id })
+        await registrarBitacora(id_medico, "VINCULAR_PACIENTE", { id_paciente: paciente.id_usuario });
 
-        res.status(201).json({ message: "Paciente vinculado correctamente a su lista de atención." })
+        res.status(201).json({ message: "Paciente vinculado correctamente a su lista de atención." });
     } catch (error) {
-        res.status(500).json(error)
+        console.log(id_medico, paciente);
+        
+        res.status(500).json(error);
     }
 }
 

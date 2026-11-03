@@ -3,40 +3,54 @@ import axios from 'axios'
 import Layout from "./Layout"
 
 function VincularPaciente() {
-
     const [dni, setDni] = useState("")
     const [mensaje, setMensaje] = useState("")
-    const token = localStorage.getItem('token')
+    const [error, setError] = useState("")
 
-    const vincular = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault()
         setMensaje("")
+        setError("")
+
         try {
-            const response = await axios.post('http://localhost:3000/medico/vincular-paciente',
+            const token = localStorage.getItem('token')
+            const response = await axios.post('http://localhost:3000/medico/vincular-paciente', 
                 { dni },
                 { headers: { Authorization: `Bearer ${token}` } }
             )
             setMensaje(response.data.message)
             setDni("")
-        } catch (error) {
-            setMensaje(error.response?.data?.message || "Error al vincular el paciente")
+        } catch (err) {
+            setError(err.response?.data?.message || "Error al vincular el paciente")
         }
     }
 
     return (
         <Layout>
-            <h1>Agregar paciente a mi lista</h1>
+            <div className="form-card" style={{ maxWidth: '500px', margin: '40px auto' }}>
+                <h2>Vincular Paciente</h2>
+                <p style={{ color: 'var(--tinta-suave)', marginBottom: '24px' }}>
+                    Ingrese el DNI del paciente para agregarlo a su lista de atención médica.
+                </p>
 
-            <div className="form-card">
-                {mensaje && <div className={mensaje.includes("correctamente") ? "mensaje-info" : "mensaje-error"}>{mensaje}</div>}
+                {mensaje && <div className="mensaje-info">{mensaje}</div>}
+                {error && <div className="mensaje-error">{error}</div>}
 
-                <div className="form-field">
-                    <label>DNI del paciente</label>
-                    <input type="text" value={dni} onChange={(e) => setDni(e.target.value)} />
-                </div>
-
-                <button className="btn-primario" onClick={vincular} style={{ width: '100%' }}>
-                    Buscar y Vincular
-                </button>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-field">
+                        <label>DNI del Paciente</label>
+                        <input 
+                            type="text" 
+                            value={dni} 
+                            onChange={(e) => setDni(e.target.value)} 
+                            required 
+                            placeholder="Ej: 12345678"
+                        />
+                    </div>
+                    <button type="submit" className="btn-primario" style={{ width: '100%' }}>
+                        Buscar y Vincular
+                    </button>
+                </form>
             </div>
         </Layout>
     )
