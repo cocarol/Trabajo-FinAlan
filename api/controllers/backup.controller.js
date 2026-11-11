@@ -52,7 +52,7 @@ const conReintentos = async (accion) => {
 }
 
 // ---------- CU14: lógica del backup ----------
-const generarBackup = async (adminId) => {
+const generarBackup = async (adminId, { omitirIntegridad = false } = {}) => {
     mantenimiento.activar()                                   // paso B
 
     try {
@@ -180,7 +180,7 @@ const restaurarBackup = async (req, res) => {
 
         // F5: backup del estado actual antes de reemplazarlo
         if (backupPrevio) {
-            await generarBackup(adminId)
+           await generarBackup(adminId, { omitirIntegridad: true })
         }
 
         // Paso D: descargar (con 3 reintentos, F3)
@@ -189,6 +189,16 @@ const restaurarBackup = async (req, res) => {
             cifrado = await conReintentos(() => fs.promises.readFile(ruta))
         } catch (error) {
             throw new ErrorNegocio(502, "No se pudo acceder al servidor de backup externo. Restore cancelado.")
+        }
+        if (!omitirIntegridad) {
+            const corruptos = datos.users.filter(u => !usuarioEsConsistente(u))
+            if (corruptos.length > 0) {
+                await registrarBitacora(adminId, "ALERTA_BACKUP_INTEGRIDAD", {
+                    criticidad: "ALTA",
+                    usuariosAfectados: corruptos.map(u => u.id_usuario)
+                })
+                throw new ErrorNegocio(409, "Integridad de origen comprometida. No se puede generar la copia de seguridad.")
+            }
         }
 
         // Paso F: integridad global del archivo (checksum)
@@ -255,5 +265,10 @@ const restaurarBackup = async (req, res) => {
 module.exports = {
     crearBackup,
     listarBackups,
-    restaurarBackup
+    restaurarBackup,
+    generarBackup,
+    ErrorNegocio,
+    manejarError,
+    CARPETA,
+    NOMBRE_VALIDO
 }

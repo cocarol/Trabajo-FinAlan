@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import axios from 'axios'
 import Layout from "./Layout"
+import RectificarBase from "./RectificarBase"
 
 function Mantenimiento() {
 
@@ -103,6 +104,7 @@ function Mantenimiento() {
                     </button>
                 </div>
             ))}
+            <RectificarBase />      {}
         </Layout>
     )
 }
