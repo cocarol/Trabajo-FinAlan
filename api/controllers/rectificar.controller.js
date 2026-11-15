@@ -10,12 +10,14 @@ const mantenimiento = require('../middlewares/mantenimiento')
 const { generarBackup, ErrorNegocio, manejarError, CARPETA, NOMBRE_VALIDO } = require('./backup.controller')
 
 const ROLES = ['paciente', 'medico', 'admin']
-const ESTADOS_TURNO = ['Disponible', 'Reservado', 'Pagado', 'Cancelado']
+const ESTADOS_TURNO = ['Disponible', 'Reservado', 'Pagado', 'Confirmado', 'Cancelado']
 const EMAIL_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const CAMPOS_CIFRADOS = ['peso', 'altura', 'presion', 'observaciones']
 
 const sellarTurno = (turno) => {
-    turno.dvh = calcularDVH({ id: turno.id, estado: turno.estado, pacienteId: turno.pacienteId, monto: turno.monto })
+    const datosFila = { id: turno.id, estado: turno.estado, id_paciente: turno.id_paciente }
+    if (turno.monto) datosFila.monto = turno.monto
+    turno.dvh = calcularDVH(datosFila)
     turno.dvv = calcularDVV(turno.dvh, turno.dvv || "")
 }
 
@@ -25,8 +27,8 @@ const analizar = async (transaccion) => {
 
     const usuarios = await User.findAll(opciones)
     const turnos = await Turno.findAll(opciones)
-    const vinculos = await MedicoPaciente.findAll(opciones)
-    const fichas = await FichaClinica.findAll(opciones)
+    const vinculos = MedicoPaciente ? await MedicoPaciente.findAll(opciones) : []
+    const fichas = FichaClinica ? await FichaClinica.findAll(opciones) : []
 
     const idsUsuarios = new Set(usuarios.map(u => u.id_usuario))
     const problemas = []
@@ -44,7 +46,6 @@ const analizar = async (transaccion) => {
             agregar('users', u.id_usuario, 'EMAIL_INVALIDO', 'Email vacío o con formato inválido', 'irreparable')
             irreparable = true
         }
-        // Si la fila ya es inválida no se "bendice" recalculando sus dígitos
         if (!irreparable && !usuarioEsConsistente(u)) {
             agregar('users', u.id_usuario, 'DVH_INCONSISTENTE', 'Los dígitos verificadores no coinciden con los datos de la fila', 'reparar')
         }
@@ -70,28 +71,39 @@ const analizar = async (transaccion) => {
     for (const turno of turnos) {
         if (duplicados.has(turno.id)) continue
 
+        const pacId = turno.id_paciente ?? 0
+
         if (!ESTADOS_TURNO.includes(turno.estado)) {
             agregar('turnos', turno.id, 'ESTADO_INVALIDO', `Estado "${turno.estado}" no reconocido`, 'irreparable')
-        } else if (turno.estado === 'Pagado' && turno.pacienteId === 0) {
+        } else if ((turno.estado === 'Pagado' || turno.estado === 'Confirmado') && !pacId) {
             agregar('turnos', turno.id, 'PAGADO_SIN_PACIENTE', 'Turno pagado sin paciente asignado', 'irreparable')
-        } else if (turno.estado === 'Reservado' && turno.pacienteId === 0) {
+        } else if (turno.estado === 'Reservado' && !pacId) {
             agregar('turnos', turno.id, 'RESERVADO_SIN_PACIENTE', 'Turno reservado sin paciente: vuelve a Disponible', 'reparar')
-        } else if (turno.estado === 'Reservado' && !idsUsuarios.has(turno.pacienteId)) {
+        } else if (turno.estado === 'Reservado' && !idsUsuarios.has(pacId)) {
             agregar('turnos', turno.id, 'PACIENTE_INEXISTENTE', 'El paciente de la reserva ya no existe: vuelve a Disponible', 'reparar')
-        } else if (turno.estado === 'Disponible' && turno.pacienteId !== 0) {
+        } else if (turno.estado === 'Disponible' && pacId !== 0 && pacId !== null) {
             agregar('turnos', turno.id, 'DISPONIBLE_CON_PACIENTE', 'Turno disponible con paciente asignado', 'reparar')
+        } else if (turno.dvh) {
+            const datosFila = { id: turno.id, estado: turno.estado, id_paciente: turno.id_paciente }
+            if (turno.monto) datosFila.monto = turno.monto
+            if (calcularDVH(datosFila) !== turno.dvh) {
+                agregar('turnos', turno.id, 'DVH_INCONSISTENTE', 'Los dígitos verificadores del turno no coinciden', 'reparar')
+            }
         }
     }
 
     // ----- medico_paciente -----
     const vinculosVistos = new Set()
     for (const v of [...vinculos].sort((a, b) => b.id - a.id)) {
-        if (!idsUsuarios.has(v.medicoId) || !idsUsuarios.has(v.pacienteId)) {
+        const medId = v.medicoId ?? v.id_medico
+        const pacId = v.id_paciente ?? v.pacienteId
+
+        if (!idsUsuarios.has(medId) || !idsUsuarios.has(pacId)) {
             agregar('medico_paciente', v.id, 'VINCULO_HUERFANO', 'El médico o el paciente del vínculo ya no existe', 'eliminar')
             continue
         }
 
-        const clave = `${v.medicoId}-${v.pacienteId}`
+        const clave = `${medId}-${pacId}`
         if (vinculosVistos.has(clave)) {
             agregar('medico_paciente', v.id, 'VINCULO_DUPLICADO', 'Vínculo médico-paciente repetido', 'eliminar')
         } else {
@@ -124,9 +136,8 @@ const resumir = (problemas) => problemas.reduce((acc, p) => {
 // Pasos A-F: backup automático + reporte. No modifica ningún registro.
 const analizarBase = async (req, res) => {
     try {
-        const adminId = req.user.id
+        const adminId = req.user?.id_usuario || req.user?.id || req.user?.userId || req.user?.id_admin
 
-        // Paso C y flujo F1
         let backup
         try {
             backup = await generarBackup(adminId, { omitirIntegridad: true })
@@ -138,7 +149,6 @@ const analizarBase = async (req, res) => {
 
         await registrarBitacora(adminId, "RECTIFICAR_ANALISIS", { backup: backup.archivo, problemas: problemas.length })
 
-        // Flujo F2
         if (problemas.length === 0) {
             return res.status(200).json({
                 integra: true,
@@ -156,10 +166,9 @@ const analizarBase = async (req, res) => {
 // Pasos G-M: el admin ya confirmó, se aplican los cambios.
 const aplicarRectificacion = async (req, res) => {
     try {
-        const adminId = req.user.id
+        const adminId = req.user?.id_usuario || req.user?.id || req.user?.userId || req.user?.id_admin
         const { backupArchivo } = req.body
 
-        // No se toca nada sin el backup del paso de análisis
         if (!backupArchivo || !NOMBRE_VALIDO.test(backupArchivo) || !fs.existsSync(path.join(CARPETA, backupArchivo))) {
             throw new ErrorNegocio(400, "No se encontró el backup previo. Volvé a analizar la base antes de rectificar.")
         }
@@ -173,30 +182,30 @@ const aplicarRectificacion = async (req, res) => {
             const t = await sequelize.transaction()
 
             try {
-                // Se vuelve a analizar adentro de la transacción: no se confía en el reporte viejo
                 const problemas = await analizar(t)
 
                 for (const p of problemas) {
-                    // Flujo F4
                     if (p.accion === 'irreparable') {
                         resultado.irreparables.push(p)
                         continue
                     }
 
-                    if (p.accion === 'eliminar') {                          // paso I
+                    if (p.accion === 'eliminar') {
                         const modelo = p.tabla === 'turnos' ? Turno : MedicoPaciente
                         await modelo.destroy({ where: { id: p.id }, transaction: t })
                         resultado.eliminados++
-                    } else if (p.tabla === 'users') {                       // pasos H y J
+                    } else if (p.tabla === 'users') {
                         const user = await User.findByPk(p.id, { transaction: t })
                         sellarUsuario(user)
                         await user.save({ transaction: t })
                         resultado.corregidos++
                     } else if (p.tabla === 'turnos') {
                         const turno = await Turno.findByPk(p.id, { transaction: t })
-                        turno.estado = 'Disponible'
-                        turno.pacienteId = 0
-                        turno.monto = null
+                        if (p.tipo !== 'DVH_INCONSISTENTE') {
+                            turno.estado = 'Disponible'
+                            turno.id_paciente = 0
+                            turno.monto = null
+                        }
                         sellarTurno(turno)
                         await turno.save({ transaction: t })
                         resultado.corregidos++
@@ -205,7 +214,6 @@ const aplicarRectificacion = async (req, res) => {
                     cambios.push({ tabla: p.tabla, id: p.id, tipo: p.tipo, accion: p.accion })
                 }
 
-                // Paso K: no puede quedar nada reparable ni duplicado
                 const restantes = await analizar(t)
                 if (restantes.some(p => p.accion !== 'irreparable')) {
                     throw new ErrorNegocio(500, "La verificación posterior detectó inconsistencias. Se revirtieron todos los cambios.")
@@ -213,7 +221,6 @@ const aplicarRectificacion = async (req, res) => {
 
                 await t.commit()
             } catch (error) {
-                // Flujo F5
                 if (!t.finished) await t.rollback()
                 throw error
             }
@@ -221,7 +228,6 @@ const aplicarRectificacion = async (req, res) => {
             mantenimiento.desactivar()
         }
 
-        // Paso L
         await registrarBitacora(adminId, "RECTIFICAR_BASE", {
             backup: backupArchivo,
             corregidos: resultado.corregidos,
@@ -230,7 +236,6 @@ const aplicarRectificacion = async (req, res) => {
             cambios
         })
 
-        // Paso M
         res.status(200).json({ message: "Rectificación completada.", resultado })
     } catch (error) {
         manejarError(res, error)

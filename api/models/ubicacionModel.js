@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db')
 
-const ObraSocial = sequelize.define('Obra_Social' ,{
+const Ubicacion = sequelize.define('Ubicacion' ,{
     id_ubicacion: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -25,4 +25,4 @@ const ObraSocial = sequelize.define('Obra_Social' ,{
     }
 })
 
-module.exports = ObraSocial
+module.exports = Ubicacion

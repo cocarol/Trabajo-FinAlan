@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
 
-
 const Paciente = sequelize.define('Paciente', {
     id_paciente: {
         type: DataTypes.INTEGER,
@@ -10,19 +9,11 @@ const Paciente = sequelize.define('Paciente', {
     },
     id_usuario: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'users',
-            key: 'id_usuario'
-        }
+        allowNull: false
     },
     id_medico: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-            model: 'medicos',
-            key: 'id_medico'
-        }
+        allowNull: true
     },
     obra_social: {
         type: DataTypes.STRING(50),
@@ -34,6 +25,14 @@ const Paciente = sequelize.define('Paciente', {
     },
     telefono: {
         type: DataTypes.STRING(20),
+        allowNull: true
+    },
+    dvh: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    dvv: {
+        type: DataTypes.STRING,
         allowNull: true
     }
 }, {

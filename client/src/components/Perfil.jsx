@@ -51,12 +51,14 @@ function Perfil() {
 
     const fetchHistorial = async () => {
         try {
+            const tokenActual = localStorage.getItem('token');
             const res = await axios.get('http://localhost:3000/turnos/historial', {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${tokenActual}` }
             });
             setHistorial(res.data);
         } catch (err) {
-            console.error("Error al cargar historial");
+            console.error("Error al cargar el historial:", err);
+            setHistorial([]);
         }
     };
 
@@ -69,7 +71,8 @@ function Perfil() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setMensaje(''); setError('');
+        setMensaje('');
+        setError('');
 
         try {
             await axios.put('http://localhost:3000/users/perfil', formData, {
@@ -90,7 +93,10 @@ function Perfil() {
             <div className="perfil-layout">
 
                 <aside className="perfil-sidebar">
-                    <button className={`perfil-nav-item ${pestanaActiva === 'info' ? 'active' : ''}`} onClick={() => setPestanaActiva('info')}>
+                    <button
+                        className={`perfil-nav-item ${pestanaActiva === 'info' ? 'active' : ''}`}
+                        onClick={() => setPestanaActiva('info')}
+                    >
                         Info personal
                     </button>
                     {role === 'paciente' && (
@@ -101,10 +107,16 @@ function Perfil() {
                             Historial / Visitas
                         </button>
                     )}
-                    <button className={`perfil-nav-item ${pestanaActiva === 'cuenta' ? 'active' : ''}`} onClick={() => setPestanaActiva('cuenta')}>
+                    <button
+                        className={`perfil-nav-item ${pestanaActiva === 'cuenta' ? 'active' : ''}`}
+                        onClick={() => setPestanaActiva('cuenta')}
+                    >
                         Configurar Cuenta
                     </button>
-                    <button className={`perfil-nav-item ${pestanaActiva === 'seguridad' ? 'active' : ''}`} onClick={() => setPestanaActiva('seguridad')}>
+                    <button
+                        className={`perfil-nav-item ${pestanaActiva === 'seguridad' ? 'active' : ''}`}
+                        onClick={() => setPestanaActiva('seguridad')}
+                    >
                         Seguridad y Contraseña
                     </button>
                 </aside>
@@ -116,24 +128,7 @@ function Perfil() {
                             {mensaje && <div className="mensaje-info">{mensaje}</div>}
                             {error && <div className="mensaje-error">{error}</div>}
 
-                            {pestanaActiva === 'historial' ? (
-                                <div className="form-card" style={{ maxWidth: '100%' }}>
-                                    <h2>Historial de Visitas</h2>
-                                    {historial.length === 0 ? (
-                                        <p className="texto-vacio">El paciente no posee registros de turnos anteriores en el sistema.</p>
-                                    ) : (
-                                        historial.map(turno => (
-                                            <div key={turno.id} className="perfil-detalle-card" style={{ marginBottom: '16px', padding: '16px' }}>
-                                                <div className="perfil-dato-fila">
-                                                    <span className="perfil-dato-label">{turno.fecha} - {turno.horario}</span>
-                                                    <span className="perfil-dato-valor">{turno.especialidad} | {turno.estado}</span>
-                                                </div>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-
-                            ) : !editando ? (
+                            {!editando ? (
                                 <>
                                     <div className="perfil-header-card">
                                         <div className="perfil-avatar">
@@ -255,6 +250,27 @@ function Perfil() {
                                 </form>
                             )}
                         </>
+                    )}
+
+                    {pestanaActiva === 'historial' && (
+                        <div className="perfil-detalle-card">
+                            <h3>Historial de Visitas y Turnos</h3>
+                            {historial.length === 0 ? (
+                                <p className="texto-vacio">El paciente no posee registros de turnos anteriores en el sistema.</p>
+                            ) : (
+                                historial.map((t) => (
+                                    <div key={t.id} className={`turno-card estado-${t.estado?.toLowerCase()}`} style={{ marginBottom: '12px' }}>
+                                        <div className="turno-info">
+                                            <div className="especialidad">{t.especialidad}</div>
+                                            <div className="detalle">
+                                                Fecha: {t.fecha} · Hora: {t.horario} · {t.ubicacion || 'Consultorio central'}
+                                            </div>
+                                        </div>
+                                        <span className="rol-badge">{t.estado}</span>
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     )}
 
                     {pestanaActiva === 'seguridad' && <CambiarPassword />}

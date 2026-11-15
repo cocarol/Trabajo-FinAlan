@@ -1,0 +1,14 @@
+{
+  "archivo": "backup-2026-11-14T23-06-21-061Z.enc",
+  "fecha": "2026-11-14T23:06:21.064Z",
+  "tamano": 6294,
+  "checksum": "783084a3e5550f730a1eaa5b8165723d1e4aca1fb05e5b377f99058db139c3ac",
+  "registros": {
+    "users": 5,
+    "turnos": 5,
+    "fichas_clinicas": 1,
+    "medico_paciente": 3,
+    "bitacora": 17
+  },
+  "creadoPor": 1
+}
