@@ -69,6 +69,7 @@ function Layout({ children }) {
                                 <>
                                     <Link className={`topbar-link ${isActive('/admin/roles') ? 'active' : ''}`} to="/admin/roles">Roles y usuarios</Link>
                                     <Link className={`topbar-link ${isActive('/admin/integridad') ? 'active' : ''}`} to="/admin/integridad">Integridad</Link>
+                                    <Link className={`topbar-link ${isActive('/admin/mantenimiento') ? 'active' : ''}`} to="/admin/mantenimiento">Mantenimiento</Link>
                                 </>
                             )}
 
@@ -100,6 +101,7 @@ function Layout({ children }) {
                         <Link to="/contacto">Soporte Técnico</Link>
                         <Link to="/privacidad">Políticas de Privacidad</Link>
                         <Link to="/terminos">Términos de Uso</Link>
+                        <Link to="/manual">Manual de Usuario</Link>
                     </div>
                 </div>
             </footer>

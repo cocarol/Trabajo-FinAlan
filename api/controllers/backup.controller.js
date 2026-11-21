@@ -1,0 +1,256 @@
+const fs = require('fs')
+const path = require('path')
+const crypto = require('crypto')
+const { Transaction } = require('sequelize')
+const { sequelize } = require('../config/db')
+const { User, Turno, FichaClinica, MedicoPaciente, Bitacora } = require('../models/index')
+const { registrarBitacora } = require('../utils/bitacora')
+const { usuarioEsConsistente } = require('../utils/integridadUsuario')
+const { cifrarBackup, descifrarBackup } = require('../utils/cifradoBackup')
+const mantenimiento = require('../middlewares/mantenimiento')
+
+const CARPETA = path.join(__dirname, '..', 'backups')
+const MAX_INTENTOS = 3
+const NOMBRE_VALIDO = /^backup-[0-9A-Za-z-]+\.enc$/
+
+const TABLAS = {
+    users: User,
+    turnos: Turno,
+    fichas_clinicas: FichaClinica,
+    medico_paciente: MedicoPaciente,
+    bitacora: Bitacora
+}
+
+class ErrorNegocio extends Error {
+    constructor(status, message) {
+        super(message)
+        this.status = status
+    }
+}
+
+const manejarError = (res, error) => {
+    if (error instanceof ErrorNegocio) {
+        return res.status(error.status).json({ message: error.message })
+    }
+    console.error("Error en backupController:", error)
+    res.status(500).json({ message: "Error interno del servidor: " + error.message })
+}
+
+const sha256 = (buffer) => crypto.createHash('sha256').update(buffer).digest('hex')
+
+const conReintentos = async (accion) => {
+    let ultimoError
+    for (let intento = 1; intento <= MAX_INTENTOS; intento++) {
+        try {
+            return await accion()
+        } catch (error) {
+            ultimoError = error
+        }
+    }
+    throw ultimoError
+}
+
+const generarBackup = async (adminId, { omitirIntegridad = false } = {}) => {
+    mantenimiento.activar()
+
+    try {
+        fs.mkdirSync(CARPETA, { recursive: true })
+
+        const t = await sequelize.transaction({ isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ })
+        const datos = {}
+
+        try {
+            for (const [nombre, modelo] of Object.entries(TABLAS)) {
+                datos[nombre] = modelo ? await modelo.findAll({ raw: true, transaction: t }) : []
+            }
+            await t.commit()
+        } catch (error) {
+            if (!t.finished) await t.rollback()
+            throw error
+        }
+
+        if (!omitirIntegridad) {
+            const corruptos = datos.users.filter(u => !usuarioEsConsistente(u))
+            if (corruptos.length > 0) {
+                await registrarBitacora(adminId, "ALERTA_BACKUP_INTEGRIDAD", {
+                    criticidad: "ALTA",
+                    usuariosAfectados: corruptos.map(u => u.id_usuario)
+                })
+                throw new ErrorNegocio(409, "Integridad de origen comprometida. No se puede generar la copia de seguridad.")
+            }
+        }
+
+        const contenido = Buffer.from(JSON.stringify({ version: 1, fecha: new Date().toISOString(), datos }), 'utf8')
+        const cifrado = cifrarBackup(contenido)
+
+        if (fs.promises.statfs) {
+            try {
+                const disco = await fs.promises.statfs(CARPETA)
+                const libre = disco.bavail * disco.bsize
+                if (libre < cifrado.length * 2) {
+                    throw new ErrorNegocio(507, "Espacio insuficiente en el disco de destino. Backup cancelado.")
+                }
+            } catch (e) {
+                if (e instanceof ErrorNegocio) throw e
+            }
+        }
+
+        const marca = new Date().toISOString().replace(/[:.]/g, '-')
+        const archivo = `backup-${marca}.enc`
+        const ruta = path.join(CARPETA, archivo)
+
+        try {
+            await conReintentos(() => fs.promises.writeFile(ruta, cifrado))
+        } catch (error) {
+            await fs.promises.rm(ruta, { force: true })
+            throw new ErrorNegocio(502, "Fallo en la comunicación con el servidor externo. Backup abortado.")
+        }
+
+        const meta = {
+            archivo,
+            fecha: new Date().toISOString(),
+            tamano: cifrado.length,
+            checksum: sha256(cifrado),
+            registros: Object.fromEntries(Object.entries(datos).map(([nombre, filas]) => [nombre, filas.length])),
+            creadoPor: adminId
+        }
+
+        await fs.promises.writeFile(path.join(CARPETA, archivo.replace('.enc', '.meta.json')), JSON.stringify(meta, null, 2))
+
+        await registrarBitacora(adminId, "BACKUP_REALIZADO", {
+            archivo,
+            tamano: meta.tamano,
+            checksum: meta.checksum
+        })
+
+        return meta
+    } finally {
+        mantenimiento.desactivar()
+    }
+}
+
+const crearBackup = async (req, res) => {
+    try {
+        const adminId = req.user?.id_usuario || req.user?.id || req.user?.userId || req.user?.id_admin
+        const meta = await generarBackup(adminId)
+        res.status(201).json({ message: "Backup realizado con éxito.", backup: meta })
+    } catch (error) {
+        manejarError(res, error)
+    }
+}
+
+const listarBackups = async (req, res) => {
+    try {
+        fs.mkdirSync(CARPETA, { recursive: true })
+
+        const copias = fs.readdirSync(CARPETA)
+            .filter(nombre => nombre.endsWith('.meta.json'))
+            .map(nombre => JSON.parse(fs.readFileSync(path.join(CARPETA, nombre), 'utf8')))
+            .sort((a, b) => b.fecha.localeCompare(a.fecha))
+
+        if (copias.length === 0) {
+            return res.status(404).json({ message: "No hay copias de seguridad disponibles." })
+        }
+
+        res.status(200).json(copias)
+    } catch (error) {
+        manejarError(res, error)
+    }
+}
+
+const restaurarBackup = async (req, res) => {
+    try {
+        const adminId = req.user?.id_usuario || req.user?.id || req.user?.userId || req.user?.id_admin
+        const { archivo, backupPrevio } = req.body
+
+        if (!archivo || !NOMBRE_VALIDO.test(archivo)) {
+            throw new ErrorNegocio(400, "Nombre de copia inválido.")
+        }
+
+        const ruta = path.join(CARPETA, archivo)
+        const rutaMeta = ruta.replace('.enc', '.meta.json')
+
+        if (!fs.existsSync(ruta) || !fs.existsSync(rutaMeta)) {
+            throw new ErrorNegocio(404, "La copia seleccionada no existe.")
+        }
+
+        if (backupPrevio) {
+            await generarBackup(adminId, { omitirIntegridad: true })
+        }
+
+        let cifrado
+        try {
+            cifrado = await conReintentos(() => fs.promises.readFile(ruta))
+        } catch (error) {
+            throw new ErrorNegocio(502, "No se pudo acceder al servidor de backup externo. Restore cancelado.")
+        }
+
+        const meta = JSON.parse(await fs.promises.readFile(rutaMeta, 'utf8'))
+        if (sha256(cifrado) !== meta.checksum) {
+            throw new ErrorNegocio(422, "La copia de seguridad está corrupta. Se descartó el archivo.")
+        }
+
+        let contenido
+        try {
+            contenido = JSON.parse(descifrarBackup(cifrado).toString('utf8'))
+        } catch (error) {
+            throw new ErrorNegocio(422, "La copia de seguridad está corrupta. Se descartó el archivo.")
+        }
+
+        mantenimiento.activar()
+
+        try {
+            const t = await sequelize.transaction()
+
+            try {
+                await sequelize.query('SET FOREIGN_KEY_CHECKS = 0', { transaction: t })
+
+                for (const modelo of Object.values(TABLAS)) {
+                    if (modelo) await modelo.destroy({ where: {}, transaction: t })
+                }
+
+                for (const [nombre, modelo] of Object.entries(TABLAS)) {
+                    const filas = contenido.datos[nombre] || []
+                    if (modelo && filas.length > 0) {
+                        await modelo.bulkCreate(filas, { transaction: t })
+                    }
+                }
+
+                await sequelize.query('SET FOREIGN_KEY_CHECKS = 1', { transaction: t })
+
+                const usuarios = await User.findAll({ raw: true, transaction: t })
+                if (usuarios.some(u => !usuarioEsConsistente(u))) {
+                    throw new ErrorNegocio(422, "La verificación de integridad de los datos restaurados falló. Se revirtieron los cambios.")
+                }
+
+                await t.commit()
+            } catch (error) {
+                if (!t.finished) await t.rollback()
+                throw error
+            }
+        } finally {
+            mantenimiento.desactivar()
+        }
+
+        await registrarBitacora(adminId, "RESTORE_REALIZADO", {
+            archivo,
+            checksum: meta.checksum,
+            backupPrevio: !!backupPrevio
+        })
+
+        res.status(200).json({ message: "Restore completado con éxito.", restaurado: meta })
+    } catch (error) {
+        manejarError(res, error)
+    }
+}
+
+module.exports = {
+    crearBackup,
+    listarBackups,
+    restaurarBackup,
+    generarBackup,
+    ErrorNegocio,
+    manejarError,
+    CARPETA,
+    NOMBRE_VALIDO
+}

@@ -1,11 +1,11 @@
 const { User, Bitacora, Turno } = require('../models/index')
 const { registrarBitacora } = require('../utils/bitacora')
 const { calcularDVH, calcularDVV } = require('../utils/digitosVerificadores')
+const { sellarUsuario, usuarioEsConsistente } = require('../utils/integridadUsuario')
 const { encriptar } = require('../utils/encriptado')
-//pene
+
 const ROLES_VALIDOS = ['paciente', 'medico', 'admin']
 
-// Pasos A-B: lista completa de usuarios
 const listarUsuarios = async (req, res) => {
     try {
         const usuarios = await User.findAll({
@@ -19,16 +19,14 @@ const listarUsuarios = async (req, res) => {
     }
 }
 
-// Pasos C-I: cambiar el rol de un usuario
 const cambiarRol = async (req, res) => {
     try {
         const adminId = req.user.id_usuario
         const { id } = req.params
         const { nuevoRol } = req.body
 
-        // F1: estructura inválida
         if (!nuevoRol || !ROLES_VALIDOS.includes(nuevoRol)) {
-            return res.status(400).json({ message: "Error de calculo en los digitos verificadores" })
+            return res.status(400).json({ message: "Estructura de registro inválida para el cálculo horizontal de integridad." })
         }
 
         const user = await User.findByPk(id)
@@ -37,35 +35,26 @@ const cambiarRol = async (req, res) => {
             return res.status(404).json({ message: "Usuario no encontrado" })
         }
 
-        // Un admin no puede quitarse el rol a sí mismo (se quedaría sin acceso)
         if (user.id_usuario === adminId) {
             return res.status(400).json({ message: "No podés modificar tu propio rol" })
         }
 
-        // F2: verificar consistencia del registro antes de modificarlo
-        if (user.dvh) {
-            const esperado = calcularDVH({ id: user.id_usuario, email: user.email, role: user.role })
-
-            if (esperado !== user.dvh) {
-                await registrarBitacora(adminId, "ALERTA_INTRUSION_ROLES", {
-                    criticidad: "ALTA",
-                    usuarioAfectado: user.id_usuario
-                })
-                return res.status(409).json({ message: "Registro corrupto: fallo de consistencia DVV. Edición congelada." })
-            }
+        if (user.dvh && !usuarioEsConsistente(user)) {
+            await registrarBitacora(adminId, "ALERTA_INTRUSION_ROLES", {
+                criticidad: "ALTA",
+                usuarioAfectado: user.id_usuario
+            })
+            return res.status(409).json({ message: "Registro corrupto: fallo de consistencia DVV. Edición congelada." })
         }
-        
 
         const rolAnterior = user.role
 
         user.role = nuevoRol
-        user.firmaRol = encriptar(`${user.id_usuario}:${nuevoRol}`)             // paso F
-        user.dvh = calcularDVH({ id: user.id_usuario , email: user.email, role: nuevoRol })   // paso G
-        user.dvv = calcularDVV(user.dvh, user.dvv || "")
+        user.firmaRol = encriptar(`${user.id_usuario}:${nuevoRol}`)
+        sellarUsuario(user)
 
         await user.save()
 
-        // paso H: alerta de alta criticidad
         await registrarBitacora(adminId, "CAMBIAR_ROL", {
             criticidad: "ALTA",
             usuarioAfectado: user.id_usuario,
@@ -82,8 +71,7 @@ const cambiarRol = async (req, res) => {
     }
 }
 
-// CU09
-
+// CU09 - Consultar Bitácora
 const consultarBitacora = async (req, res) => {
     try {
         const registros = await Bitacora.findAll({
@@ -105,8 +93,10 @@ const verificarIntegridad = async (req, res) => {
         const usuarios = await User.findAll();
         for (const user of usuarios) {
             if (user.dvh) {
-                const esperado = calcularDVH({ id: user.id_usuario, email: user.email, role: user.role });
-                if (esperado !== user.dvh) {
+                const esperadoSinPass = calcularDVH({ id: user.id_usuario, email: user.email, role: user.role });
+                const esValido = usuarioEsConsistente(user) || (esperadoSinPass === user.dvh);
+
+                if (!esValido) {
                     errores.push({ tabla: 'Users', id: user.id_usuario, error: 'DVH Corrupto' });
                 }
             }
@@ -115,9 +105,16 @@ const verificarIntegridad = async (req, res) => {
         const turnos = await Turno.findAll();
         for (const turno of turnos) {
             if (turno.dvh) {
-                const datosFila = { id: turno.id, estado: turno.estado, id_paciente: turno.id_paciente };
-                const esperado = calcularDVH(datosFila);
-                if (esperado !== turno.dvh) {
+                const base = { id: turno.id, estado: turno.estado, id_paciente: turno.id_paciente };
+                const conMonto = { id: turno.id, estado: turno.estado, id_paciente: turno.id_paciente, monto: turno.monto };
+                const soloMonto = { id: turno.id, estado: turno.estado, monto: turno.monto };
+
+                const esValido =
+                    turno.dvh === calcularDVH(base) ||
+                    turno.dvh === calcularDVH(conMonto) ||
+                    turno.dvh === calcularDVH(soloMonto);
+
+                if (!esValido) {
                     errores.push({ tabla: 'Turnos', id: turno.id, error: 'DVH Corrupto' });
                 }
             }

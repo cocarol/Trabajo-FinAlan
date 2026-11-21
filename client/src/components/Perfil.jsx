@@ -13,7 +13,8 @@ function Perfil() {
     const [error, setError] = useState('');
     const [role, setRole] = useState('');
     const [pestanaActiva, setPestanaActiva] = useState('info');
-    
+    const [historial, setHistorial] = useState([]);
+
     const [formData, setFormData] = useState({
         name: '', email: '', dni: '',
         especialidad: '', matricula: '',
@@ -48,6 +49,19 @@ function Perfil() {
         }
     };
 
+    const fetchHistorial = async () => {
+        try {
+            const tokenActual = localStorage.getItem('token');
+            const res = await axios.get('http://localhost:3000/turnos/historial', {
+                headers: { Authorization: `Bearer ${tokenActual}` }
+            });
+            setHistorial(res.data);
+        } catch (err) {
+            console.error("Error al cargar el historial:", err);
+            setHistorial([]);
+        }
+    };
+
     useEffect(() => {
         if (!token) navigate('/login');
         else fetchPerfil();
@@ -57,7 +71,8 @@ function Perfil() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setMensaje(''); setError('');
+        setMensaje('');
+        setError('');
 
         try {
             await axios.put('http://localhost:3000/users/perfil', formData, {
@@ -76,20 +91,32 @@ function Perfil() {
     return (
         <Layout>
             <div className="perfil-layout">
-                
+
                 <aside className="perfil-sidebar">
-                    <button className={`perfil-nav-item ${pestanaActiva === 'info' ? 'active' : ''}`} onClick={() => setPestanaActiva('info')}>
+                    <button
+                        className={`perfil-nav-item ${pestanaActiva === 'info' ? 'active' : ''}`}
+                        onClick={() => setPestanaActiva('info')}
+                    >
                         Info personal
                     </button>
                     {role === 'paciente' && (
-                        <button className="perfil-nav-item" onClick={() => navigate('/mis-turnos')}>
+                        <button
+                            className={`perfil-nav-item ${pestanaActiva === 'historial' ? 'active' : ''}`}
+                            onClick={() => { setPestanaActiva('historial'); fetchHistorial(); }}
+                        >
                             Historial / Visitas
                         </button>
                     )}
-                    <button className={`perfil-nav-item ${pestanaActiva === 'cuenta' ? 'active' : ''}`} onClick={() => setPestanaActiva('cuenta')}>
+                    <button
+                        className={`perfil-nav-item ${pestanaActiva === 'cuenta' ? 'active' : ''}`}
+                        onClick={() => setPestanaActiva('cuenta')}
+                    >
                         Configurar Cuenta
                     </button>
-                    <button className={`perfil-nav-item ${pestanaActiva === 'seguridad' ? 'active' : ''}`} onClick={() => setPestanaActiva('seguridad')}>
+                    <button
+                        className={`perfil-nav-item ${pestanaActiva === 'seguridad' ? 'active' : ''}`}
+                        onClick={() => setPestanaActiva('seguridad')}
+                    >
                         Seguridad y Contraseña
                     </button>
                 </aside>
@@ -106,7 +133,7 @@ function Perfil() {
                                     <div className="perfil-header-card">
                                         <div className="perfil-avatar">
                                             <svg className="perfil-avatar-svg" viewBox="0 0 24 24">
-                                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                             </svg>
                                         </div>
                                         <div className="perfil-info-principal">
@@ -134,7 +161,7 @@ function Perfil() {
 
                                         <div className="perfil-detalle-card">
                                             <h3>{role === 'medico' ? 'Datos Profesionales' : 'Cobertura Médica'}</h3>
-                                            
+
                                             {role === 'medico' ? (
                                                 <>
                                                     <div className="perfil-dato-fila">
@@ -223,6 +250,27 @@ function Perfil() {
                                 </form>
                             )}
                         </>
+                    )}
+
+                    {pestanaActiva === 'historial' && (
+                        <div className="perfil-detalle-card">
+                            <h3>Historial de Visitas y Turnos</h3>
+                            {historial.length === 0 ? (
+                                <p className="texto-vacio">El paciente no posee registros de turnos anteriores en el sistema.</p>
+                            ) : (
+                                historial.map((t) => (
+                                    <div key={t.id} className={`turno-card estado-${t.estado?.toLowerCase()}`} style={{ marginBottom: '12px' }}>
+                                        <div className="turno-info">
+                                            <div className="especialidad">{t.especialidad}</div>
+                                            <div className="detalle">
+                                                Fecha: {t.fecha} · Hora: {t.horario} · {t.ubicacion || 'Consultorio central'}
+                                            </div>
+                                        </div>
+                                        <span className="rol-badge">{t.estado}</span>
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     )}
 
                     {pestanaActiva === 'seguridad' && <CambiarPassword />}

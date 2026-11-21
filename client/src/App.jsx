@@ -18,6 +18,8 @@ import IntegridadAdmin from './components/IntegridadAdmin'
 import Home from './components/Home';
 import RecuperarPassword from "./components/RecuperarPassword"
 import ResetPassword from "./components/ResetPassword"
+import Mantenimiento from "./components/Mantenimiento"
+import ManualUsuario from './components/ManualUsuario';
 
 
 function App() {
@@ -38,6 +40,8 @@ function App() {
       <Route element={<RutaAdmin><GestionRoles /></RutaAdmin>} path='/admin/roles' />
       <Route element={<RecuperarPassword />} path='/recuperar' />
       <Route element={<ResetPassword />} path='/reset-password/:token' />
+      <Route element={<RutaAdmin><Mantenimiento /></RutaAdmin>} path='/admin/mantenimiento' />
+      <Route element={<ManualUsuario />} path='/manual' />
     </Routes>
   )
 }

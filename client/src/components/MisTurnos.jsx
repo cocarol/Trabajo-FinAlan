@@ -57,6 +57,18 @@ function MisTurnos() {
         }
     }
 
+    const confirmarAsistencia = async (turnoId) => {
+        try {
+            const response = await axios.put(`http://localhost:3000/turnos/${turnoId}/confirmar`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setMensaje(response.data.message);
+            fetchTurnos();
+        } catch (error) {
+            setMensaje(error.response?.data?.message || "Error al confirmar asistencia");
+        }
+    };
+
     const abrirPago = (turnoId) => {
         setMensaje("")
         setComprobante(null)
@@ -107,6 +119,9 @@ function MisTurnos() {
 
                             {(turno.estado === "Reservado" || turno.estado === "Pagado") && (
                                 <button className="btn-peligro" onClick={() => cancelarTurno(turno.id)}>Cancelar</button>
+                            )}
+                            {(turno.estado === "Reservado" || turno.estado === "Pagado") && (
+                                <button className="btn-primario" onClick={() => confirmarAsistencia(turno.id)}>Confirmar</button>
                             )}
                         </div>
                     </div>

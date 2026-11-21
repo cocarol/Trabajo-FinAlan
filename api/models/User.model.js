@@ -30,7 +30,7 @@ const User = sequelize.define("User", {
         defaultValue: "paciente" // paciente | medico | admin
     },
     dni: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: true,
         unique: true
     },

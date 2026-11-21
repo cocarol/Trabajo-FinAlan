@@ -1,10 +1,9 @@
 const { calcularDVH, calcularDVV } = require('./digitosVerificadores')
 
 const datosVerificables = (user) => ({
-    id: user.id_usuario,
+    id: user.id_usuario || user.id,
     email: user.email,
-    role: user.role,
-    password: user.password
+    role: user.role
 })
 
 // Recalcula DVH y DVV de la fila (CU16). Llamar justo antes del save()

@@ -25,10 +25,6 @@ export default function IntegridadAdmin() {
         }
     };
 
-    useEffect(() => {
-        verificarIntegridad()
-    }, [])
-
     return (
         <Layout>
             <div className="panel-integridad">
